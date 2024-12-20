@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using GTA;
 using GTA.Math;
-using GTA.Native;
 using GTA.UI;
 using LemonUI;
 using LemonUI.Menus;
@@ -35,6 +34,10 @@ namespace WeaponWorkshop
         private readonly NativeItem menu_weaponCarbineRifle = new NativeItem(TEXT_MENUITEM_CARBINERIFLE);
         private readonly NativeItem menu_weaponBat = new NativeItem(TEXT_MENUITEM_BAT);
         private readonly List<Prop> props = new List<Prop>();
+        private readonly bool devMode = true;
+        public string ModName = "Weapon Workshop (.NET)";
+        public string ModVersion = "0.0.1";
+        public string ModMaker = "ConcatSpirity";
 
         public WeaponWorkshop()
         {
@@ -60,6 +63,11 @@ namespace WeaponWorkshop
 
         private void Initialize()
         {
+            if (devMode)
+            {
+                Notification.Show($"{ModName} {ModVersion}, coded by {ModMaker}", false);
+            }
+
             // Initialize the weapon workshop menu and the menu items
             pool.Add(menu);
             menu.Add(menu_weaponPistol);
