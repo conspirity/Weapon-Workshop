@@ -21,7 +21,7 @@ namespace WeaponWorkshop
         private static readonly string NAME_WEAPONCHEST = "prop_mil_crate_01";
         private static readonly string TEXT_MENUBANNER = "Weapon Workshop";
         private static readonly string TEXT_MENUNAME = "Get Yourself Strapped Up!";
-        private static readonly string TEXT_MENUDESC = "Made by ConcatSpirity (c)";
+        private static readonly string TEXT_MENUDESC = "Coded by ConcatSpirity (c)";
         private static readonly string TEXT_MENUITEM_PISTOL = "Pistol";
         private static readonly string TEXT_MENUITEM_SMG = "SMG";
         private static readonly string TEXT_MENUITEM_MICROSMG = "Micro SMG";
@@ -35,8 +35,6 @@ namespace WeaponWorkshop
         private readonly NativeItem menu_weaponCarbineRifle = new NativeItem(TEXT_MENUITEM_CARBINERIFLE);
         private readonly NativeItem menu_weaponBat = new NativeItem(TEXT_MENUITEM_BAT);
         private readonly List<Prop> props = new List<Prop>();
-        private readonly Keys openMenuKey;
-        private Blip workshopBlip;
 
         public WeaponWorkshop()
         {
@@ -71,13 +69,11 @@ namespace WeaponWorkshop
             menu.Add(menu_weaponBat);
             menu.Visible = false;
 
-            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), Game.Player.Character.GetOffsetPosition(new Vector3(0, 5f, 0)), false, true);
+            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-209.037f, -1360.366f, 0), false, true);
             props.Add(weaponChest);
             props[0].AddBlip();
             props[0].AttachedBlip.Sprite = BlipSprite.Pistol;
             props[0].AttachedBlip.Name = TEXT_MENUBANNER;
-
-            
         }
 
         private void OnTick(object sender, EventArgs e)
@@ -94,11 +90,35 @@ namespace WeaponWorkshop
             }
 
             menu_weaponPistol.Selected += Menu_weaponPistol_Selected;
+            menu_weaponSMG.Selected += Menu_weaponSMG_Selected;
+            menu_weaponMicroSMG.Selected += Menu_weaponMicroSMG_Selected;
+            menu_weaponCarbineRifle.Selected += Menu_weaponCarbineRifle_Selected;
+            menu_weaponBat.Selected += Menu_weaponBat_Selected;
         }
 
         private void Menu_weaponPistol_Selected(object sender, SelectedEventArgs e)
         {
             Game.Player.Character.Weapons.Give($"{HASH_PISTOL}", 200, true, true);
+        }
+
+        private void Menu_weaponSMG_Selected(object sender, SelectedEventArgs e)
+        {
+            Game.Player.Character.Weapons.Give($"{HASH_SMG}", 200, true, true);
+        }
+
+        private void Menu_weaponMicroSMG_Selected(object sender, SelectedEventArgs e)
+        {
+            Game.Player.Character.Weapons.Give($"{HASH_MICROSMG}", 200, true, true);
+        }
+
+        private void Menu_weaponCarbineRifle_Selected(object sender, SelectedEventArgs e)
+        {
+            Game.Player.Character.Weapons.Give($"{HASH_CARBINERIFLE}", 200, true, true);
+        }
+
+        private void Menu_weaponBat_Selected(object sender, SelectedEventArgs e)
+        {
+            Game.Player.Character.Weapons.Give($"{HASH_BAT}", 200, true, true);
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
