@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) 2024 ConcatSpirity
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -104,27 +106,27 @@ namespace WeaponWorkshop
             menu_weaponBat.Selected += Menu_weaponBat_Selected;
         }
 
-        private void Menu_weaponPistol_Selected(object sender, SelectedEventArgs e)
+        private static void Menu_weaponPistol_Selected(object sender, SelectedEventArgs e)
         {
             Game.Player.Character.Weapons.Give($"{HASH_PISTOL}", 200, true, true);
         }
 
-        private void Menu_weaponSMG_Selected(object sender, SelectedEventArgs e)
+        private static void Menu_weaponSMG_Selected(object sender, SelectedEventArgs e)
         {
             Game.Player.Character.Weapons.Give($"{HASH_SMG}", 200, true, true);
         }
 
-        private void Menu_weaponMicroSMG_Selected(object sender, SelectedEventArgs e)
+        private static void Menu_weaponMicroSMG_Selected(object sender, SelectedEventArgs e)
         {
             Game.Player.Character.Weapons.Give($"{HASH_MICROSMG}", 200, true, true);
         }
 
-        private void Menu_weaponCarbineRifle_Selected(object sender, SelectedEventArgs e)
+        private static void Menu_weaponCarbineRifle_Selected(object sender, SelectedEventArgs e)
         {
             Game.Player.Character.Weapons.Give($"{HASH_CARBINERIFLE}", 200, true, true);
         }
 
-        private void Menu_weaponBat_Selected(object sender, SelectedEventArgs e)
+        private static void Menu_weaponBat_Selected(object sender, SelectedEventArgs e)
         {
             Game.Player.Character.Weapons.Give($"{HASH_BAT}", 200, true, true);
         }
