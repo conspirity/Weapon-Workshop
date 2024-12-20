@@ -14,11 +14,6 @@ namespace WeaponWorkshop
 {
     public class WeaponWorkshop : Script
     {
-        private const int HASH_PISTOL = 453432689;
-        private const int HASH_SMG = 736523883;
-        private const int HASH_MICROSMG = 324215364;
-        private const int HASH_CARBINERIFLE = -2084633992;
-        private const int HASH_BAT = -1786099057;
         private static readonly string NAME_WEAPONCHEST = "prop_mil_crate_01";
         private static readonly string TEXT_MENUBANNER = "Weapon Workshop";
         private static readonly string TEXT_MENUNAME = "Get Yourself Strapped Up!";
@@ -53,7 +48,7 @@ namespace WeaponWorkshop
             model.Request(250);
             if (model.IsInCdImage && model.IsValid)
             {
-                while (model.IsLoaded)
+                while (!model.IsLoaded)
                 {
                     Script.Wait(50);
                 }
@@ -79,7 +74,8 @@ namespace WeaponWorkshop
             menu.Add(menu_weaponBat);
             menu.Visible = false;
 
-            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-209.037f, -1360.366f, 0), false, true);
+            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-192.2758f, -1362.0439f, 30.7082f), false, true);
+            //Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), Game.Player.Character.GetOffsetPosition(new Vector3(0, 5f, 0)), false, true);
             props.Add(weaponChest);
             props[0].AddBlip();
             props[0].AttachedBlip.Sprite = BlipSprite.Pistol;
@@ -99,36 +95,36 @@ namespace WeaponWorkshop
                 menu.Visible = false;
             }
 
-            menu_weaponPistol.Selected += Menu_weaponPistol_Selected;
-            menu_weaponSMG.Selected += Menu_weaponSMG_Selected;
-            menu_weaponMicroSMG.Selected += Menu_weaponMicroSMG_Selected;
-            menu_weaponCarbineRifle.Selected += Menu_weaponCarbineRifle_Selected;
-            menu_weaponBat.Selected += Menu_weaponBat_Selected;
+            menu_weaponPistol.Activated += Menu_weaponPistol_Selected;
+            menu_weaponSMG.Activated += Menu_weaponSMG_Selected;
+            menu_weaponMicroSMG.Activated += Menu_weaponMicroSMG_Selected;
+            menu_weaponCarbineRifle.Activated += Menu_weaponCarbineRifle_Selected;
+            menu_weaponBat.Activated += Menu_weaponBat_Selected;
         }
 
-        private static void Menu_weaponPistol_Selected(object sender, SelectedEventArgs e)
+        private void Menu_weaponPistol_Selected(object sender, EventArgs e)
         {
-            Game.Player.Character.Weapons.Give($"{HASH_PISTOL}", 200, true, true);
+            Game.Player.Character.Weapons.Give(WeaponHash.Pistol, 200, true, true);
         }
 
-        private static void Menu_weaponSMG_Selected(object sender, SelectedEventArgs e)
+        private void Menu_weaponSMG_Selected(object sender, EventArgs e)
         {
-            Game.Player.Character.Weapons.Give($"{HASH_SMG}", 200, true, true);
+            Game.Player.Character.Weapons.Give(WeaponHash.SMG, 200, true, true);
         }
 
-        private static void Menu_weaponMicroSMG_Selected(object sender, SelectedEventArgs e)
+        private void Menu_weaponMicroSMG_Selected(object sender, EventArgs e)
         {
-            Game.Player.Character.Weapons.Give($"{HASH_MICROSMG}", 200, true, true);
+            Game.Player.Character.Weapons.Give(WeaponHash.MicroSMG, 200, true, true);
         }
 
-        private static void Menu_weaponCarbineRifle_Selected(object sender, SelectedEventArgs e)
+        private void Menu_weaponCarbineRifle_Selected(object sender, EventArgs e)
         {
-            Game.Player.Character.Weapons.Give($"{HASH_CARBINERIFLE}", 200, true, true);
+            Game.Player.Character.Weapons.Give(WeaponHash.CarbineRifle, 200, true, true);
         }
 
-        private static void Menu_weaponBat_Selected(object sender, SelectedEventArgs e)
+        private void Menu_weaponBat_Selected(object sender, EventArgs e)
         {
-            Game.Player.Character.Weapons.Give($"{HASH_BAT}", 200, true, true);
+            Game.Player.Character.Weapons.Give(WeaponHash.Bat, 200, true, true);
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
