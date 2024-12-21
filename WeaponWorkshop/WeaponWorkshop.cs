@@ -31,6 +31,7 @@ namespace WeaponWorkshop
         private readonly NativeItem menu_weaponCarbineRifle = new NativeItem(TEXT_MENUITEM_CARBINERIFLE);
         private readonly NativeItem menu_weaponBat = new NativeItem(TEXT_MENUITEM_BAT);
         private readonly List<Prop> props = new List<Prop>();
+        private Prop WeaponChest { get; set; }
         private readonly bool devMode = true;
         public string ModName = "Weapon Workshop (.NET)";
         public string ModVersion = "0.0.1";
@@ -40,6 +41,7 @@ namespace WeaponWorkshop
         {
             Initialize();
             Tick += OnTick;
+            Aborted += OnAbort;
         }
 
         private static Model RequestModel(string prop)
@@ -74,19 +76,23 @@ namespace WeaponWorkshop
             menu.Add(menu_weaponBat);
             menu.Visible = false;
 
-            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-192.2758f, -1362.0439f, 30.7082f), false, true);
-            //Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), Game.Player.Character.GetOffsetPosition(new Vector3(0, 5f, 0)), false, true);
-            props.Add(weaponChest);
-            props[0].AddBlip();
-            props[0].AttachedBlip.Sprite = BlipSprite.Pistol;
-            props[0].AttachedBlip.Name = TEXT_MENUBANNER;
+            WeaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-192.2758f, -1362.0439f, 30.7082f), false, true);
+            WeaponChest.AddBlip();
+            WeaponChest.AttachedBlip.Sprite = BlipSprite.AmmuNation;
+            WeaponChest.AttachedBlip.Name = TEXT_MENUBANNER;
+        }
+
+        private void OnAbort(object sender, EventArgs e)
+        {
+            WeaponChest.AttachedBlip.Delete();
+            WeaponChest.Delete();
         }
 
         private void OnTick(object sender, EventArgs e)
         {
             pool.Process();
             
-            if (World.GetDistance(Game.Player.Character.Position, props[0].Position) < 3)
+            if (World.GetDistance(Game.Player.Character.Position, props[0].Position) < 1)
             {
                 menu.Visible = true;
             }
@@ -95,36 +101,36 @@ namespace WeaponWorkshop
                 menu.Visible = false;
             }
 
-            menu_weaponPistol.Activated += Menu_weaponPistol_Selected;
-            menu_weaponSMG.Activated += Menu_weaponSMG_Selected;
-            menu_weaponMicroSMG.Activated += Menu_weaponMicroSMG_Selected;
-            menu_weaponCarbineRifle.Activated += Menu_weaponCarbineRifle_Selected;
-            menu_weaponBat.Activated += Menu_weaponBat_Selected;
+            menu_weaponPistol.Activated += Menu_weaponPistol_Activated;
+            menu_weaponSMG.Activated += Menu_weaponSMG_Activated;
+            menu_weaponMicroSMG.Activated += Menu_weaponMicroSMG_Activated;
+            menu_weaponCarbineRifle.Activated += Menu_weaponCarbineRifle_Activated;
+            menu_weaponBat.Activated += Menu_weaponBat_Activated;
         }
 
-        private void Menu_weaponPistol_Selected(object sender, EventArgs e)
+        private void Menu_weaponPistol_Activated(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.Pistol, 200, true, true);
         }
 
-        private void Menu_weaponSMG_Selected(object sender, EventArgs e)
+        private void Menu_weaponSMG_Activated(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.SMG, 200, true, true);
         }
 
-        private void Menu_weaponMicroSMG_Selected(object sender, EventArgs e)
+        private void Menu_weaponMicroSMG_Activated(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.MicroSMG, 200, true, true);
         }
 
-        private void Menu_weaponCarbineRifle_Selected(object sender, EventArgs e)
+        private void Menu_weaponCarbineRifle_Activated(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.CarbineRifle, 200, true, true);
         }
 
-        private void Menu_weaponBat_Selected(object sender, EventArgs e)
+        private void Menu_weaponBat_Activated(object sender, EventArgs e)
         {
-            Game.Player.Character.Weapons.Give(WeaponHash.Bat, 200, true, true);
+            Game.Player.Character.Weapons.Give(WeaponHash.Bat, 1, true, true);
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
