@@ -31,7 +31,6 @@ namespace WeaponWorkshop
         private readonly NativeItem menu_weaponCarbineRifle = new NativeItem(TEXT_MENUITEM_CARBINERIFLE);
         private readonly NativeItem menu_weaponBat = new NativeItem(TEXT_MENUITEM_BAT);
         private readonly List<Prop> props = new List<Prop>();
-        private Prop WeaponChest { get; set; }
         private readonly bool devMode = true;
         public string ModName = "Weapon Workshop (.NET)";
         public string ModVersion = "0.0.1";
@@ -74,25 +73,25 @@ namespace WeaponWorkshop
             menu.Add(menu_weaponMicroSMG);
             menu.Add(menu_weaponCarbineRifle);
             menu.Add(menu_weaponBat);
-            menu.Visible = false;
 
-            WeaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-192.2758f, -1362.0439f, 30.7082f), false, true);
-            WeaponChest.AddBlip();
-            WeaponChest.AttachedBlip.Sprite = BlipSprite.AmmuNation;
-            WeaponChest.AttachedBlip.Name = TEXT_MENUBANNER;
+            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-192.2758f, -1362.0439f, 30.7082f), false, true);
+            props.Add(weaponChest);
+            props[0].AddBlip();
+            props[0].AttachedBlip.Sprite = BlipSprite.Pistol;
+            props[0].AttachedBlip.Name = TEXT_MENUBANNER;
         }
 
         private void OnAbort(object sender, EventArgs e)
         {
-            WeaponChest.AttachedBlip.Delete();
-            WeaponChest.Delete();
+            props[0].AttachedBlip.Delete();
+            props[0].Delete();
         }
 
         private void OnTick(object sender, EventArgs e)
         {
             pool.Process();
             
-            if (World.GetDistance(Game.Player.Character.Position, props[0].Position) < 1)
+            if (World.GetDistance(Game.Player.Character.Position, props[0].Position) < 3)
             {
                 menu.Visible = true;
             }
