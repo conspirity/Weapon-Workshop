@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
 using GTA;
 using GTA.Math;
 using GTA.UI;
@@ -17,24 +15,20 @@ namespace WeaponWorkshop
         private static readonly string NAME_WEAPONCHEST = "prop_mil_crate_01";
         private static readonly string TEXT_MENUBANNER = "Weapon Workshop";
         private static readonly string TEXT_MENUNAME = "Get Yourself Strapped Up!";
-        private static readonly string TEXT_MENUDESC = "Coded by ConcatSpirity (c)";
-        private static readonly string TEXT_MENUITEM_PISTOL = "Pistol";
-        private static readonly string TEXT_MENUITEM_SMG = "SMG";
-        private static readonly string TEXT_MENUITEM_MICROSMG = "Micro SMG";
-        private static readonly string TEXT_MENUITEM_CARBINERIFLE = "Carbine Rifle";
-        private static readonly string TEXT_MENUITEM_BAT = "Bat";
+        private static readonly string TEXT_MENUDESCRIPTION = "Coded by ConcatSpirity";
         private readonly ObjectPool pool = new ObjectPool();
-        private readonly NativeMenu menu = new NativeMenu(TEXT_MENUBANNER, TEXT_MENUNAME, TEXT_MENUDESC);
-        private readonly NativeItem menu_weaponPistol = new NativeItem(TEXT_MENUITEM_PISTOL);
-        private readonly NativeItem menu_weaponSMG = new NativeItem(TEXT_MENUITEM_SMG);
-        private readonly NativeItem menu_weaponMicroSMG = new NativeItem(TEXT_MENUITEM_MICROSMG);
-        private readonly NativeItem menu_weaponCarbineRifle = new NativeItem(TEXT_MENUITEM_CARBINERIFLE);
-        private readonly NativeItem menu_weaponBat = new NativeItem(TEXT_MENUITEM_BAT);
+        private readonly NativeMenu menu = new NativeMenu(TEXT_MENUBANNER, TEXT_MENUNAME, TEXT_MENUDESCRIPTION);
+        private readonly NativeItem menu_weaponPistol = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.Pistol));
+        private readonly NativeItem menu_weaponSMG = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.SMG));
+        private readonly NativeItem menu_weaponMicroSMG = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.MicroSMG));
+        private readonly NativeItem menu_weaponCarbineRifle = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.CarbineRifle));
+        private readonly NativeItem menu_weaponAssaultRifle = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.AssaultRifle));
+        private readonly NativeItem menu_weaponHeavySniper = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.HeavySniper));
+        private readonly NativeItem menu_weaponShotgun = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.SawnOffShotgun));
+        private readonly NativeItem menu_weaponMolotov = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.Molotov));
+        private readonly NativeItem menu_weaponBat = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.Bat));
+        private readonly List<NativeItem> menuItems = new List<NativeItem>();
         private readonly List<Prop> props = new List<Prop>();
-        private readonly bool devMode = true;
-        public string ModName = "Weapon Workshop (.NET)";
-        public string ModVersion = "0.0.1";
-        public string ModMaker = "ConcatSpirity";
 
         public WeaponWorkshop()
         {
@@ -59,26 +53,93 @@ namespace WeaponWorkshop
             return model;
         }
 
-        private void Initialize()
+        private EventHandler GiveWeapon(GTA.WeaponHash wepHash, GTA.WeaponGroup wepGroup, NativeItem menuItem)
         {
-            if (devMode)
+            if (wepGroup == WeaponGroup.Melee && Game.Player.Character.Weapons.HasWeapon(wepHash))
             {
-                Notification.Show($"{ModName} {ModVersion}, coded by {ModMaker}", false);
+                Notification.Show("You already have this melee weapon");
+                return null;
+            }
+            else if (wepGroup == WeaponGroup.Pistol)
+            {
+                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
+                Game.Player.Character.Weapons[wepHash].Ammo += 100;
+            }
+            else if (wepGroup == WeaponGroup.SMG)
+            {
+                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
+                Game.Player.Character.Weapons[wepHash].Ammo += 200;
+            }
+            else if (wepGroup == WeaponGroup.AssaultRifle)
+            {
+                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
+                Game.Player.Character.Weapons[wepHash].Ammo += 300;
+            }
+            else if (wepGroup == WeaponGroup.Shotgun || wepGroup == WeaponGroup.Sniper)
+            {
+                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
+                Game.Player.Character.Weapons[wepHash].Ammo += 70;
+            }
+            else if (wepGroup == WeaponGroup.Thrown)
+            {
+                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
+                Game.Player.Character.Weapons[wepHash].Ammo += 5;
             }
 
-            // Initialize the weapon workshop menu and the menu items
+            menu.Remove(menuItem);
+
+            return null;
+        }
+        
+        private void CreateMenuWeaponItems()
+        {
+            NativeItem[] allMenuWeaponItems =
+            { 
+                menu_weaponPistol,
+                menu_weaponMicroSMG,
+                menu_weaponSMG,
+                menu_weaponAssaultRifle,
+                menu_weaponCarbineRifle,
+                menu_weaponHeavySniper,
+                menu_weaponShotgun,
+                menu_weaponMolotov,
+                menu_weaponBat
+            };
+            int poolSize = 5;
+            var rand = new Random();
+
+            for (int i = 0; i < poolSize; i++)
+            {
+                int selectedWeaponIndex = rand.Next(0, allMenuWeaponItems.Length);
+                if (menuItems.Contains(allMenuWeaponItems[selectedWeaponIndex]))
+                {
+                    i--;
+                }
+                else
+                {
+                    menuItems.Add(allMenuWeaponItems[selectedWeaponIndex]);
+                }
+            }
+
+            foreach (var item in menuItems)
+            {
+                menu.Add(item);
+            }
+        }
+
+        private void Initialize()
+        {
             pool.Add(menu);
-            menu.Add(menu_weaponPistol);
-            menu.Add(menu_weaponSMG);
-            menu.Add(menu_weaponMicroSMG);
-            menu.Add(menu_weaponCarbineRifle);
-            menu.Add(menu_weaponBat);
+            CreateMenuWeaponItems();
 
             Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-192.2758f, -1362.0439f, 30.7082f), false, true);
             props.Add(weaponChest);
+
+            props[0].Rotation = new Vector3(0.0f, 0.0f, 0.0f);
             props[0].AddBlip();
-            props[0].AttachedBlip.Sprite = BlipSprite.Pistol;
+            props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
             props[0].AttachedBlip.Name = TEXT_MENUBANNER;
+            props[0].AttachedBlip.IsShortRange = true;
         }
 
         private void OnAbort(object sender, EventArgs e)
@@ -100,47 +161,15 @@ namespace WeaponWorkshop
                 menu.Visible = false;
             }
 
-            menu_weaponPistol.Activated += Menu_weaponPistol_Activated;
-            menu_weaponSMG.Activated += Menu_weaponSMG_Activated;
-            menu_weaponMicroSMG.Activated += Menu_weaponMicroSMG_Activated;
-            menu_weaponCarbineRifle.Activated += Menu_weaponCarbineRifle_Activated;
-            menu_weaponBat.Activated += Menu_weaponBat_Activated;
+            menu_weaponPistol.Activated += GiveWeapon(WeaponHash.Pistol, WeaponGroup.Pistol, menu_weaponPistol);
+            menu_weaponSMG.Activated += GiveWeapon(WeaponHash.SMG, WeaponGroup.SMG, menu_weaponSMG);
+            menu_weaponMicroSMG.Activated += GiveWeapon(WeaponHash.MicroSMG, WeaponGroup.SMG, menu_weaponMicroSMG);
+            menu_weaponCarbineRifle.Activated += GiveWeapon(WeaponHash.CarbineRifle, WeaponGroup.AssaultRifle, menu_weaponCarbineRifle);
+            menu_weaponAssaultRifle.Activated += GiveWeapon(WeaponHash.AssaultRifle, WeaponGroup.AssaultRifle, menu_weaponAssaultRifle);
+            menu_weaponHeavySniper.Activated += GiveWeapon(WeaponHash.HeavySniper, WeaponGroup.Sniper, menu_weaponHeavySniper);
+            menu_weaponShotgun.Activated += GiveWeapon(WeaponHash.SawnOffShotgun, WeaponGroup.Shotgun, menu_weaponShotgun);
+            menu_weaponMolotov.Activated += GiveWeapon(WeaponHash.Molotov, WeaponGroup.Thrown, menu_weaponMolotov);
+            menu_weaponBat.Activated += GiveWeapon(WeaponHash.Bat, WeaponGroup.Melee, menu_weaponBat);
         }
-
-        private void Menu_weaponPistol_Activated(object sender, EventArgs e)
-        {
-            Game.Player.Character.Weapons.Give(WeaponHash.Pistol, 200, true, true);
-        }
-
-        private void Menu_weaponSMG_Activated(object sender, EventArgs e)
-        {
-            Game.Player.Character.Weapons.Give(WeaponHash.SMG, 200, true, true);
-        }
-
-        private void Menu_weaponMicroSMG_Activated(object sender, EventArgs e)
-        {
-            Game.Player.Character.Weapons.Give(WeaponHash.MicroSMG, 200, true, true);
-        }
-
-        private void Menu_weaponCarbineRifle_Activated(object sender, EventArgs e)
-        {
-            Game.Player.Character.Weapons.Give(WeaponHash.CarbineRifle, 200, true, true);
-        }
-
-        private void Menu_weaponBat_Activated(object sender, EventArgs e)
-        {
-            Game.Player.Character.Weapons.Give(WeaponHash.Bat, 1, true, true);
-        }
-
-        private void OnKeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
-
-        private void OnKeyUp(object sender, KeyEventArgs e)
-        {
-
-        }
-
     }
 }
