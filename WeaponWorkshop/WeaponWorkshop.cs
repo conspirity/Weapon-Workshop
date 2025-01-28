@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using GTA;
 using GTA.Math;
 using GTA.UI;
@@ -33,7 +34,27 @@ namespace WeaponWorkshop
 
         public WeaponWorkshop()
         {
-            Initialize();
+            pool.Add(menu);
+            CreateMenuWeaponItems();
+
+            Model chestModel = new Model(NAME_WEAPONCHEST);
+            chestModel.Request(250);
+
+            if (chestModel.IsInCdImage && chestModel.IsValid)
+            {
+                while (!chestModel.IsLoaded) Script.Wait(50);
+
+                Prop weaponChest = World.CreateProp(chestModel, chestLocation, false, true);
+                props.Add(weaponChest);
+            }
+
+            props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
+
+            props[0].AddBlip();
+            props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
+            props[0].AttachedBlip.Name = TEXT_MENUBANNER;
+            props[0].AttachedBlip.IsShortRange = true;
+
             Tick += OnTick;
             Aborted += OnAbort;
         }
@@ -151,22 +172,6 @@ namespace WeaponWorkshop
             }
         }
 
-        private void Initialize()
-        {
-            pool.Add(menu);
-            CreateMenuWeaponItems();
-
-            Model chestModel = new Model(NAME_WEAPONCHEST);
-            Prop weaponChest = World.CreateProp(chestModel, chestLocation, false, true);
-            props.Add(weaponChest);
-
-            props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
-            props[0].AddBlip();
-            props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
-            props[0].AttachedBlip.Name = TEXT_MENUBANNER;
-            props[0].AttachedBlip.IsShortRange = true;
-        }
-
         private void OnAbort(object sender, EventArgs e)
         {
             props[0].AttachedBlip.Delete();
@@ -185,6 +190,7 @@ namespace WeaponWorkshop
             {
                 menu.Visible = false;
             }
+
             menu_weaponPistol.Activated += GivePistol;
             menu_weaponSMG.Activated += GiveSMG;
             menu_weaponMicroSMG.Activated += GiveMicroSMG;
