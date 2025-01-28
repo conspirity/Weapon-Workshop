@@ -44,7 +44,6 @@ namespace WeaponWorkshop
             Game.Player.Character.Weapons[WeaponHash.Pistol].Ammo += 80;
             menu.Remove(menu_weaponPistol);
             Notification.Show("Selected weapon ~b~Pistol");
-            Notification.Hide(500);
         }
 
         private void GiveSMG(object sender, EventArgs e)
@@ -53,7 +52,6 @@ namespace WeaponWorkshop
             Game.Player.Character.Weapons[WeaponHash.SMG].Ammo += 165;
             menu.Remove(menu_weaponSMG);
             Notification.Show("Selected weapon ~b~SMG");
-            Notification.Hide(500);
         }
 
         private void GiveMicroSMG(object sender, EventArgs e)
@@ -62,7 +60,6 @@ namespace WeaponWorkshop
             Game.Player.Character.Weapons[WeaponHash.MicroSMG].Ammo += 165;
             menu.Remove(menu_weaponMicroSMG);
             Notification.Show("Selected weapon ~b~Micro SMG");
-            Notification.Hide(500);
         }
 
         private void GiveCarbineRifle(object sender, EventArgs e)
@@ -71,7 +68,6 @@ namespace WeaponWorkshop
             Game.Player.Character.Weapons[WeaponHash.CarbineRifle].Ammo += 250;
             menu.Remove(menu_weaponCarbineRifle);
             Notification.Show("Selected weapon ~b~Carbine Rifle");
-            Notification.Hide(500);
         }
 
         private void GiveAssaultRifle(object sender, EventArgs e)
@@ -80,7 +76,6 @@ namespace WeaponWorkshop
             Game.Player.Character.Weapons[WeaponHash.AssaultRifle].Ammo += 250;
             menu.Remove(menu_weaponAssaultRifle);
             Notification.Show("Selected weapon ~b~Assault Rifle");
-            Notification.Hide(500);
         }
 
         private void GiveHeavySniper(object sender, EventArgs e)
@@ -89,7 +84,6 @@ namespace WeaponWorkshop
             Game.Player.Character.Weapons[WeaponHash.HeavySniper].Ammo += 50;
             menu.Remove(menu_weaponHeavySniper);
             Notification.Show("Selected weapon ~b~Heavy Sniper");
-            Notification.Hide(500);
         }
 
         private void GiveShotgun(object sender, EventArgs e)
@@ -98,7 +92,6 @@ namespace WeaponWorkshop
             Game.Player.Character.Weapons[WeaponHash.SawnOffShotgun].Ammo += 60;
             menu.Remove(menu_weaponShotgun);
             Notification.Show("Selected weapon ~b~Sawed-Off Shotgun");
-            Notification.Hide(500);
         }
 
         private void GiveMolotov(object sender, EventArgs e)
@@ -107,7 +100,6 @@ namespace WeaponWorkshop
             Game.Player.Character.Weapons[WeaponHash.Molotov].Ammo += 5;
             menu.Remove(menu_weaponMolotov);
             Notification.Show("Selected weapon ~b~Molotov (x5)");
-            Notification.Hide(500);
         }
 
         private void GiveBat(object sender, EventArgs e)
@@ -117,12 +109,10 @@ namespace WeaponWorkshop
                 Game.Player.Character.Weapons.Give(WeaponHash.Bat, 1, true, true);
                 menu.Remove(menu_weaponBat);
                 Notification.Show("Selected weapon ~b~Bat");
-                Notification.Hide(500);
             }
             else
             {
                 Notification.Show("You already have weapon ~b~Bat");
-                Notification.Hide(500);
             }
         }
         private void CreateMenuWeaponItems()
