@@ -18,15 +18,16 @@ namespace WeaponWorkshop
         private static readonly string TEXT_MENUDESCRIPTION = "Coded by ConcatSpirity";
         private readonly ObjectPool pool = new ObjectPool();
         private readonly NativeMenu menu = new NativeMenu(TEXT_MENUBANNER, TEXT_MENUNAME, TEXT_MENUDESCRIPTION);
-        private readonly NativeItem menu_weaponPistol = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.Pistol));
-        private readonly NativeItem menu_weaponSMG = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.SMG));
-        private readonly NativeItem menu_weaponMicroSMG = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.MicroSMG));
-        private readonly NativeItem menu_weaponCarbineRifle = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.CarbineRifle));
-        private readonly NativeItem menu_weaponAssaultRifle = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.AssaultRifle));
-        private readonly NativeItem menu_weaponHeavySniper = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.HeavySniper));
-        private readonly NativeItem menu_weaponShotgun = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.SawnOffShotgun));
-        private readonly NativeItem menu_weaponMolotov = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.Molotov));
-        private readonly NativeItem menu_weaponBat = new NativeItem(GTA.Weapon.GetDisplayNameFromHash(WeaponHash.Bat));
+        private readonly NativeItem menu_weaponPistol = new NativeItem("Pistol");
+        private readonly NativeItem menu_weaponSMG = new NativeItem("SMG");
+        private readonly NativeItem menu_weaponMicroSMG = new NativeItem("Micro SMG");
+        private readonly NativeItem menu_weaponCarbineRifle = new NativeItem("Carbine Rifle");
+        private readonly NativeItem menu_weaponAssaultRifle = new NativeItem("Assault Rifle");
+        private readonly NativeItem menu_weaponHeavySniper = new NativeItem("Heavy Sniper");
+        private readonly NativeItem menu_weaponShotgun = new NativeItem("Sawed-Off Shotgun");
+        private readonly NativeItem menu_weaponMolotov = new NativeItem("Molotov");
+        private readonly NativeItem menu_weaponBat = new NativeItem("Bat");
+        private readonly Vector3 chestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
         private readonly List<NativeItem> menuItems = new List<NativeItem>();
         private readonly List<Prop> props = new List<Prop>();
 
@@ -37,60 +38,93 @@ namespace WeaponWorkshop
             Aborted += OnAbort;
         }
 
-        private static Model RequestModel(string prop)
+        private void GivePistol(object sender, EventArgs e)
         {
-            var model = new Model(prop);
-            model.Request(250);
-            if (model.IsInCdImage && model.IsValid)
-            {
-                while (!model.IsLoaded)
-                {
-                    Script.Wait(50);
-                }
-                return model;
-            }
-            model.MarkAsNoLongerNeeded();
-            return model;
+            Game.Player.Character.Weapons.Give(WeaponHash.Pistol, 0, true, true);
+            Game.Player.Character.Weapons[WeaponHash.Pistol].Ammo += 80;
+            menu.Remove(menu_weaponPistol);
+            Notification.Show("Selected weapon ~b~Pistol");
+            Notification.Hide(500);
         }
 
-        private EventHandler GiveWeapon(GTA.WeaponHash wepHash, GTA.WeaponGroup wepGroup, NativeItem menuItem)
+        private void GiveSMG(object sender, EventArgs e)
         {
-            if (wepGroup == WeaponGroup.Melee && Game.Player.Character.Weapons.HasWeapon(wepHash))
-            {
-                Notification.Show("You already have this melee weapon");
-                return null;
-            }
-            else if (wepGroup == WeaponGroup.Pistol)
-            {
-                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
-                Game.Player.Character.Weapons[wepHash].Ammo += 100;
-            }
-            else if (wepGroup == WeaponGroup.SMG)
-            {
-                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
-                Game.Player.Character.Weapons[wepHash].Ammo += 200;
-            }
-            else if (wepGroup == WeaponGroup.AssaultRifle)
-            {
-                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
-                Game.Player.Character.Weapons[wepHash].Ammo += 300;
-            }
-            else if (wepGroup == WeaponGroup.Shotgun || wepGroup == WeaponGroup.Sniper)
-            {
-                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
-                Game.Player.Character.Weapons[wepHash].Ammo += 70;
-            }
-            else if (wepGroup == WeaponGroup.Thrown)
-            {
-                Game.Player.Character.Weapons.Give(wepHash, 0, true, true);
-                Game.Player.Character.Weapons[wepHash].Ammo += 5;
-            }
-
-            menu.Remove(menuItem);
-
-            return null;
+            Game.Player.Character.Weapons.Give(WeaponHash.SMG, 0, true, true);
+            Game.Player.Character.Weapons[WeaponHash.SMG].Ammo += 165;
+            menu.Remove(menu_weaponSMG);
+            Notification.Show("Selected weapon ~b~SMG");
+            Notification.Hide(500);
         }
-        
+
+        private void GiveMicroSMG(object sender, EventArgs e)
+        {
+            Game.Player.Character.Weapons.Give(WeaponHash.MicroSMG, 0, true, true);
+            Game.Player.Character.Weapons[WeaponHash.MicroSMG].Ammo += 165;
+            menu.Remove(menu_weaponMicroSMG);
+            Notification.Show("Selected weapon ~b~Micro SMG");
+            Notification.Hide(500);
+        }
+
+        private void GiveCarbineRifle(object sender, EventArgs e)
+        {
+            Game.Player.Character.Weapons.Give(WeaponHash.CarbineRifle, 0, true, true);
+            Game.Player.Character.Weapons[WeaponHash.CarbineRifle].Ammo += 250;
+            menu.Remove(menu_weaponCarbineRifle);
+            Notification.Show("Selected weapon ~b~Carbine Rifle");
+            Notification.Hide(500);
+        }
+
+        private void GiveAssaultRifle(object sender, EventArgs e)
+        {
+            Game.Player.Character.Weapons.Give(WeaponHash.AssaultRifle, 0, true, true);
+            Game.Player.Character.Weapons[WeaponHash.AssaultRifle].Ammo += 250;
+            menu.Remove(menu_weaponAssaultRifle);
+            Notification.Show("Selected weapon ~b~Assault Rifle");
+            Notification.Hide(500);
+        }
+
+        private void GiveHeavySniper(object sender, EventArgs e)
+        {
+            Game.Player.Character.Weapons.Give(WeaponHash.HeavySniper, 0, true, true);
+            Game.Player.Character.Weapons[WeaponHash.HeavySniper].Ammo += 50;
+            menu.Remove(menu_weaponHeavySniper);
+            Notification.Show("Selected weapon ~b~Heavy Sniper");
+            Notification.Hide(500);
+        }
+
+        private void GiveShotgun(object sender, EventArgs e)
+        {
+            Game.Player.Character.Weapons.Give(WeaponHash.SawnOffShotgun, 0, true, true);
+            Game.Player.Character.Weapons[WeaponHash.SawnOffShotgun].Ammo += 60;
+            menu.Remove(menu_weaponShotgun);
+            Notification.Show("Selected weapon ~b~Sawed-Off Shotgun");
+            Notification.Hide(500);
+        }
+
+        private void GiveMolotov(object sender, EventArgs e)
+        {
+            Game.Player.Character.Weapons.Give(WeaponHash.Molotov, 0, true, true);
+            Game.Player.Character.Weapons[WeaponHash.Molotov].Ammo += 5;
+            menu.Remove(menu_weaponMolotov);
+            Notification.Show("Selected weapon ~b~Molotov (x5)");
+            Notification.Hide(500);
+        }
+
+        private void GiveBat(object sender, EventArgs e)
+        {
+            if (!Game.Player.Character.Weapons.HasWeapon(WeaponHash.Bat))
+            {
+                Game.Player.Character.Weapons.Give(WeaponHash.Bat, 1, true, true);
+                menu.Remove(menu_weaponBat);
+                Notification.Show("Selected weapon ~b~Bat");
+                Notification.Hide(500);
+            }
+            else
+            {
+                Notification.Show("You already have weapon ~b~Bat");
+                Notification.Hide(500);
+            }
+        }
         private void CreateMenuWeaponItems()
         {
             NativeItem[] allMenuWeaponItems =
@@ -132,7 +166,8 @@ namespace WeaponWorkshop
             pool.Add(menu);
             CreateMenuWeaponItems();
 
-            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), new Vector3(-192.2758f, -1362.0439f, 30.7082f), false, true);
+            Model chestModel = new Model(NAME_WEAPONCHEST);
+            Prop weaponChest = World.CreateProp(chestModel, chestLocation, false, true);
             props.Add(weaponChest);
 
             props[0].Rotation = new Vector3(0.0f, 0.0f, 0.0f);
@@ -160,16 +195,15 @@ namespace WeaponWorkshop
             {
                 menu.Visible = false;
             }
-
-            menu_weaponPistol.Activated += GiveWeapon(WeaponHash.Pistol, WeaponGroup.Pistol, menu_weaponPistol);
-            menu_weaponSMG.Activated += GiveWeapon(WeaponHash.SMG, WeaponGroup.SMG, menu_weaponSMG);
-            menu_weaponMicroSMG.Activated += GiveWeapon(WeaponHash.MicroSMG, WeaponGroup.SMG, menu_weaponMicroSMG);
-            menu_weaponCarbineRifle.Activated += GiveWeapon(WeaponHash.CarbineRifle, WeaponGroup.AssaultRifle, menu_weaponCarbineRifle);
-            menu_weaponAssaultRifle.Activated += GiveWeapon(WeaponHash.AssaultRifle, WeaponGroup.AssaultRifle, menu_weaponAssaultRifle);
-            menu_weaponHeavySniper.Activated += GiveWeapon(WeaponHash.HeavySniper, WeaponGroup.Sniper, menu_weaponHeavySniper);
-            menu_weaponShotgun.Activated += GiveWeapon(WeaponHash.SawnOffShotgun, WeaponGroup.Shotgun, menu_weaponShotgun);
-            menu_weaponMolotov.Activated += GiveWeapon(WeaponHash.Molotov, WeaponGroup.Thrown, menu_weaponMolotov);
-            menu_weaponBat.Activated += GiveWeapon(WeaponHash.Bat, WeaponGroup.Melee, menu_weaponBat);
+            menu_weaponPistol.Activated += GivePistol;
+            menu_weaponSMG.Activated += GiveSMG;
+            menu_weaponMicroSMG.Activated += GiveMicroSMG;
+            menu_weaponCarbineRifle.Activated += GiveCarbineRifle;
+            menu_weaponAssaultRifle.Activated += GiveAssaultRifle;
+            menu_weaponHeavySniper.Activated += GiveHeavySniper;
+            menu_weaponShotgun.Activated += GiveShotgun;
+            menu_weaponMolotov.Activated += GiveMolotov;
+            menu_weaponBat.Activated += GiveBat;
         }
     }
 }
