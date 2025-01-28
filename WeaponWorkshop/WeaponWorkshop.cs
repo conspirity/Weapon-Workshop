@@ -160,7 +160,7 @@ namespace WeaponWorkshop
             Prop weaponChest = World.CreateProp(chestModel, chestLocation, false, true);
             props.Add(weaponChest);
 
-            props[0].Rotation = new Vector3(0.0f, 0.0f, 0.0f);
+            props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
             props[0].AddBlip();
             props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
             props[0].AttachedBlip.Name = TEXT_MENUBANNER;
