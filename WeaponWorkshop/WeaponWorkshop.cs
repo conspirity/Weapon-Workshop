@@ -2,10 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Timers;
 using GTA;
 using GTA.Math;
-using GTA.Native;
 using GTA.UI;
 using LemonUI;
 using LemonUI.Menus;
@@ -57,63 +55,63 @@ namespace WeaponWorkshop
             props[0].AttachedBlip.IsShortRange = true;
         }
 
-        private void GivePistol(object sender, SelectedEventArgs e)
+        private void GivePistol(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.Pistol, 80, true, true);
             menu.Remove(menu_weaponPistol);
             Notification.Show("Selected weapon ~b~Pistol");
         }
 
-        private void GiveSMG(object sender, SelectedEventArgs e)
+        private void GiveSMG(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.SMG, 165, true, true);
             menu.Remove(menu_weaponSMG);
             Notification.Show("Selected weapon ~b~SMG");
         }
 
-        private void GiveMicroSMG(object sender, SelectedEventArgs e)
+        private void GiveMicroSMG(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.MicroSMG, 165, true, true);
             menu.Remove(menu_weaponMicroSMG);
             Notification.Show("Selected weapon ~b~Micro SMG");
         }
 
-        private void GiveCarbineRifle(object sender, SelectedEventArgs e)
+        private void GiveCarbineRifle(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.CarbineRifle, 250, true, true);
             menu.Remove(menu_weaponCarbineRifle);
             Notification.Show("Selected weapon ~b~Carbine Rifle");
         }
 
-        private void GiveAssaultRifle(object sender, SelectedEventArgs e)
+        private void GiveAssaultRifle(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.AssaultRifle, 250, true, true);
             menu.Remove(menu_weaponAssaultRifle);
             Notification.Show("Selected weapon ~b~Assault Rifle");
         }
 
-        private void GiveHeavySniper(object sender, SelectedEventArgs e)
+        private void GiveHeavySniper(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.HeavySniper, 50, true, true);
             menu.Remove(menu_weaponHeavySniper);
             Notification.Show("Selected weapon ~b~Heavy Sniper");
         }
 
-        private void GiveShotgun(object sender, SelectedEventArgs e)
+        private void GiveShotgun(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.SawnOffShotgun, 60, true, true);
             menu.Remove(menu_weaponShotgun);
             Notification.Show("Selected weapon ~b~Sawed-Off Shotgun");
         }
 
-        private void GiveMolotov(object sender, SelectedEventArgs e)
+        private void GiveMolotov(object sender, EventArgs e)
         {
             Game.Player.Character.Weapons.Give(WeaponHash.Molotov, 5, true, true);
             menu.Remove(menu_weaponMolotov);
             Notification.Show("Selected weapon ~b~Molotov (x5)");
         }
 
-        private void GiveBat(object sender, SelectedEventArgs e)
+        private void GiveBat(object sender, EventArgs e)
         {
             if (Game.Player.Character.Weapons.HasWeapon(WeaponHash.Bat))
             {
@@ -181,15 +179,15 @@ namespace WeaponWorkshop
                 menu.Visible = false;
             }
 
-            menu_weaponPistol.Selected += GivePistol;
-            menu_weaponSMG.Selected += GiveSMG;
-            menu_weaponMicroSMG.Selected += GiveMicroSMG;
-            menu_weaponCarbineRifle.Selected += GiveCarbineRifle;
-            menu_weaponAssaultRifle.Selected += GiveAssaultRifle;
-            menu_weaponHeavySniper.Selected += GiveHeavySniper;
-            menu_weaponShotgun.Selected += GiveShotgun;
-            menu_weaponMolotov.Selected += GiveMolotov;
-            menu_weaponBat.Selected += GiveBat;
+            menu_weaponPistol.Activated += GivePistol;
+            menu_weaponSMG.Activated += GiveSMG;
+            menu_weaponMicroSMG.Activated += GiveMicroSMG;
+            menu_weaponCarbineRifle.Activated += GiveCarbineRifle;
+            menu_weaponAssaultRifle.Activated += GiveAssaultRifle;
+            menu_weaponHeavySniper.Activated += GiveHeavySniper;
+            menu_weaponShotgun.Activated += GiveShotgun;
+            menu_weaponMolotov.Activated += GiveMolotov;
+            menu_weaponBat.Activated += GiveBat;
         }
     }
 }
