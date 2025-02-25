@@ -16,7 +16,6 @@ namespace WeaponWorkshop
         private static string NAME_WEAPONCHEST = "prop_mil_crate_01";
         private static string TEXT_MENUBANNER = "Weapon Workshop";
         private static string TEXT_MENUNAME = "Get Yourself Strapped Up!";
-
         private ObjectPool pool = new ObjectPool();
         private NativeMenu menu = new NativeMenu(TEXT_MENUBANNER, TEXT_MENUNAME, "");
         private NativeItem menu_weaponPistol = new NativeItem("Pistol");
@@ -28,13 +27,12 @@ namespace WeaponWorkshop
         private NativeItem menu_weaponShotgun = new NativeItem("Sawed-Off Shotgun");
         private NativeItem menu_weaponMolotov = new NativeItem("Molotov");
         private NativeItem menu_weaponBat = new NativeItem("Bat");
-
-        private Vector3 weaponChestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
-
         private List<NativeItem> menuItems = new List<NativeItem>();
+        private Vector3 weaponChestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
         private List<Prop> props = new List<Prop>();
-
         private GTATimer cTimer;
+        private bool cTimerSet = false;
+        private int cTimerInterval = 60000;
 
         public WeaponWorkshop()
         {
@@ -55,10 +53,8 @@ namespace WeaponWorkshop
             props[0].AttachedBlip.Name = TEXT_MENUBANNER;
             props[0].AttachedBlip.IsShortRange = true;
 
-            int interval = 60000;
-            cTimer = new GTATimer("timer", interval);
+            cTimer = new GTATimer("timer", cTimerInterval);
             cTimer.onTimerElapsed += OnTimerElapsed;
-            cTimer.Start();
 
             menu_weaponPistol.Activated += GiveWeapon(WeaponGroup.Pistol, WeaponHash.Pistol, menu_weaponPistol);
             menu_weaponSMG.Activated += GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, menu_weaponSMG);
@@ -187,11 +183,6 @@ namespace WeaponWorkshop
             var rand = new Random();
             int poolSize = rand.Next(3, 5);
 
-            if (menu.Items.Count > 0)
-            {
-                menu.Clear();
-            }
-
             for (int i = 0; i < poolSize; i++)
             {
                 int selectedWeaponIndex = rand.Next(0, allMenuWeaponItems.Length);
@@ -213,15 +204,18 @@ namespace WeaponWorkshop
 
         private void OnTimerElapsed(string name)
         {
-            menu.Clear();
+            cTimer.Reset();
+            foreach (var item in menuItems)
+            {
+                menu.Remove(item);
+            }
             CreateMenuWeaponItems();
             Notification.Show("Weapon Workshop: Items have been restocked");
+            cTimer.Start();
         }
 
         private void OnAbort(object sender, EventArgs e)
         {
-            menu.Clear();
-            pool.Remove(menu);
             props[0].AttachedBlip.Delete();
             props[0].Delete();
         }
@@ -231,7 +225,15 @@ namespace WeaponWorkshop
             if (Game.IsLoading) return;
 
             pool.Process();
-            
+
+            if (!cTimerSet)
+            {
+                cTimer.Start();
+                cTimerSet = true;
+            }
+
+            if (cTimer.Running) cTimer.Update();
+
             if (World.GetDistance(Game.Player.Character.Position, props[0].Position) < 3)
             {
                 menu.Visible = true;
@@ -240,8 +242,6 @@ namespace WeaponWorkshop
             {
                 menu.Visible = false;
             }
-
-            if (cTimer.Running) cTimer.Update();
         }
     }
 }
