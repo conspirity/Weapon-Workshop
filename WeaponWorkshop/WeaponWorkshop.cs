@@ -8,7 +8,6 @@ using GTA.UI;
 using GTATimers;
 using LemonUI;
 using LemonUI.Menus;
-using Microsoft.Win32;
 
 namespace WeaponWorkshop
 {
