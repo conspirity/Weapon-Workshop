@@ -5,35 +5,37 @@ using System.Collections.Generic;
 using GTA;
 using GTA.Math;
 using GTA.UI;
+using GTATimers;
 using LemonUI;
 using LemonUI.Menus;
+using Microsoft.Win32;
 
 namespace WeaponWorkshop
 {
     public class WeaponWorkshop : Script
     {
-        private static readonly string NAME_WEAPONCHEST = "prop_mil_crate_01";
-        private static readonly string TEXT_MENUBANNER = "Weapon Workshop";
-        private static readonly string TEXT_MENUNAME = "Get Yourself Strapped Up!";
+        private static string NAME_WEAPONCHEST = "prop_mil_crate_01";
+        private static string TEXT_MENUBANNER = "Weapon Workshop";
+        private static string TEXT_MENUNAME = "Get Yourself Strapped Up!";
 
-        private readonly ObjectPool pool = new ObjectPool();
-        private readonly NativeMenu menu = new NativeMenu(TEXT_MENUBANNER, TEXT_MENUNAME, "");
-        private readonly NativeItem menu_weaponPistol = new NativeItem("Pistol");
-        private readonly NativeItem menu_weaponSMG = new NativeItem("SMG");
-        private readonly NativeItem menu_weaponMicroSMG = new NativeItem("Micro SMG");
-        private readonly NativeItem menu_weaponCarbineRifle = new NativeItem("Carbine Rifle");
-        private readonly NativeItem menu_weaponAssaultRifle = new NativeItem("Assault Rifle");
-        private readonly NativeItem menu_weaponHeavySniper = new NativeItem("Heavy Sniper");
-        private readonly NativeItem menu_weaponShotgun = new NativeItem("Sawed-Off Shotgun");
-        private readonly NativeItem menu_weaponMolotov = new NativeItem("Molotov");
-        private readonly NativeItem menu_weaponBat = new NativeItem("Bat");
+        private ObjectPool pool = new ObjectPool();
+        private NativeMenu menu = new NativeMenu(TEXT_MENUBANNER, TEXT_MENUNAME, "");
+        private NativeItem menu_weaponPistol = new NativeItem("Pistol");
+        private NativeItem menu_weaponSMG = new NativeItem("SMG");
+        private NativeItem menu_weaponMicroSMG = new NativeItem("Micro SMG");
+        private NativeItem menu_weaponCarbineRifle = new NativeItem("Carbine Rifle");
+        private NativeItem menu_weaponAssaultRifle = new NativeItem("Assault Rifle");
+        private NativeItem menu_weaponHeavySniper = new NativeItem("Heavy Sniper");
+        private NativeItem menu_weaponShotgun = new NativeItem("Sawed-Off Shotgun");
+        private NativeItem menu_weaponMolotov = new NativeItem("Molotov");
+        private NativeItem menu_weaponBat = new NativeItem("Bat");
 
-        private readonly Vector3 weaponChestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
+        private Vector3 weaponChestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
 
-        private readonly List<NativeItem> menuItems = new List<NativeItem>();
-        private readonly List<Prop> props = new List<Prop>();
+        private List<NativeItem> menuItems = new List<NativeItem>();
+        private List<Prop> props = new List<Prop>();
 
-        private readonly System.Timers.Timer timer;
+        private GTATimer cTimer;
 
         public WeaponWorkshop()
         {
@@ -54,13 +56,10 @@ namespace WeaponWorkshop
             props[0].AttachedBlip.Name = TEXT_MENUBANNER;
             props[0].AttachedBlip.IsShortRange = true;
 
-            timer = new System.Timers.Timer
-            {
-                Interval = 900000
-            };
-            timer.Elapsed += OnTimerElapsed;
-            timer.AutoReset = true;
-            timer.Start();
+            int interval = 60000;
+            cTimer = new GTATimer("timer", interval);
+            cTimer.onTimerElapsed += OnTimerElapsed;
+            cTimer.Start();
 
             menu_weaponPistol.Activated += GiveWeapon(WeaponGroup.Pistol, WeaponHash.Pistol, menu_weaponPistol);
             menu_weaponSMG.Activated += GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, menu_weaponSMG);
@@ -213,9 +212,9 @@ namespace WeaponWorkshop
             }
         }
 
-        private void OnTimerElapsed(Object source, System.Timers.ElapsedEventArgs e)
+        private void OnTimerElapsed(string name)
         {
-            menu.Items.Clear();
+            menu.Clear();
             CreateMenuWeaponItems();
             Notification.Show("Weapon Workshop: Items have been restocked");
         }
@@ -230,6 +229,8 @@ namespace WeaponWorkshop
 
         private void OnTick(object sender, EventArgs e)
         {
+            if (Game.IsLoading) return;
+
             pool.Process();
             
             if (World.GetDistance(Game.Player.Character.Position, props[0].Position) < 3)
@@ -241,11 +242,7 @@ namespace WeaponWorkshop
                 menu.Visible = false;
             }
 
-            if (World.GetDistance(Game.Player.Character.Position, props[0].Position) < 25)
-            {
-                Game.Player.IgnoredByEveryone = true;
-                Game.Player.IgnoredByPolice = true;
-            }
+            if (cTimer.Running) cTimer.Update();
         }
     }
 }
