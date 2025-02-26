@@ -1,4 +1,7 @@
-﻿using GTA;
+﻿// Credits: unknown user from GTA Forums
+// https://gtaforums.com/topic/924484-c-using-timers-and-intervals/
+
+using GTA;
 
 namespace GTATimers
 {
