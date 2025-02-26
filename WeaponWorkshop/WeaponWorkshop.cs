@@ -254,8 +254,10 @@ namespace WeaponWorkshop
                 cTimer.Start();
                 cTimerSet = true;
             }
-
-            if (cTimer.Running) cTimer.Update();
+            else
+            {
+                if (cTimer.Running) cTimer.Update();
+            }
 
             if (World.GetDistance(Game.Player.Character.Position, props[0].Position) < 3)
             {
