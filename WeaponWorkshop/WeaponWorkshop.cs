@@ -55,17 +55,14 @@ namespace WeaponWorkshop
             CreateMenuWeaponItems();
 
             Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), chestLocation, false, true);
-
             props.Add(weaponChest);
-
             props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
-
             props[0].AddBlip();
             props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
             props[0].AttachedBlip.Name = TEXT_MENUBANNER;
             props[0].AttachedBlip.IsShortRange = true;
 
-            cTimer = new GTATimer("timer", cTimerInterval);
+            cTimer = new GTATimer("WeaponsResupplyTimer", cTimerInterval);
             cTimer.onTimerElapsed += OnTimerElapsed;
 
             menu_items_Pistol.Activated += (object sender, EventArgs e) =>
@@ -110,17 +107,14 @@ namespace WeaponWorkshop
             };
         }
 
-        private static Model RequestModel(string prop)
+        public Model RequestModel(string prop)
         {
             var model = new Model(prop);
             model.Request(250);
 
             if (model.IsInCdImage && model.IsValid)
             {
-                while (!model.IsLoaded)
-                {
-                    Wait(50);
-                }
+                while (!model.IsLoaded) Wait(50);
                 return model;
             }
 
@@ -130,76 +124,78 @@ namespace WeaponWorkshop
 
         private void GiveWeapon(WeaponGroup group, WeaponHash hash, NativeItem menuItem)
         {
+            var player_weapons = Game.Player.Character.Weapons;
+
             switch (group)
             {
                 case WeaponGroup.Pistol:
                     menu.Remove(menuItem);
-                    if (Game.Player.Character.Weapons.HasWeapon(hash))
+                    if (player_weapons.HasWeapon(hash))
                     {
-                        Game.Player.Character.Weapons[hash].Ammo += 80;
+                        player_weapons[hash].Ammo += 80;
                         break;
                     }
-                    Game.Player.Character.Weapons.Give(hash, 80, true, true);
+                    player_weapons.Give(hash, 80, true, true);
                     break;
 
                 case WeaponGroup.SMG:
                     menu.Remove(menuItem);
-                    if (Game.Player.Character.Weapons.HasWeapon(hash))
+                    if (player_weapons.HasWeapon(hash))
                     {
-                        Game.Player.Character.Weapons[hash].Ammo += 165;
+                        player_weapons[hash].Ammo += 165;
                         break;
                     }
-                    Game.Player.Character.Weapons.Give(hash, 165, true, true);
+                    player_weapons.Give(hash, 165, true, true);
                     break;
 
                 case WeaponGroup.AssaultRifle:
                     menu.Remove(menuItem);
-                    if (Game.Player.Character.Weapons.HasWeapon(hash))
+                    if (player_weapons.HasWeapon(hash))
                     {
-                        Game.Player.Character.Weapons[hash].Ammo += 250;
+                        player_weapons[hash].Ammo += 250;
                         break;
                     }
-                    Game.Player.Character.Weapons.Give(hash, 250, true, true);
+                    player_weapons.Give(hash, 250, true, true);
                     break;
 
                 case WeaponGroup.Sniper:
                     menu.Remove(menuItem);
-                    if (Game.Player.Character.Weapons.HasWeapon(hash))
+                    if (player_weapons.HasWeapon(hash))
                     {
-                        Game.Player.Character.Weapons[hash].Ammo += 50;
+                        player_weapons[hash].Ammo += 50;
                         break;
                     }
-                    Game.Player.Character.Weapons.Give(hash, 50, true, true);
+                    player_weapons.Give(hash, 50, true, true);
                     break;
 
                 case WeaponGroup.Shotgun:
                     menu.Remove(menuItem);
-                    if (Game.Player.Character.Weapons.HasWeapon(hash))
+                    if (player_weapons.HasWeapon(hash))
                     {
-                        Game.Player.Character.Weapons[hash].Ammo += 60;
+                        player_weapons[hash].Ammo += 60;
                         break;
                     }
-                    Game.Player.Character.Weapons.Give(hash, 60, true, true);
+                    player_weapons.Give(hash, 60, true, true);
                     break;
 
                 case WeaponGroup.Melee:
-                    if (Game.Player.Character.Weapons.HasWeapon(hash))
+                    if (player_weapons.HasWeapon(hash))
                     {
                         Notification.Show("You already have this melee weapon");
                         break;
                     }
-                    Game.Player.Character.Weapons.Give(hash, 1, true, true);
+                    player_weapons.Give(hash, 1, true, true);
                     menu.Remove(menuItem);
                     break;
 
                 case WeaponGroup.Thrown:
                     menu.Remove(menuItem);
-                    if (Game.Player.Character.Weapons.HasWeapon(hash))
+                    if (player_weapons.HasWeapon(hash))
                     {
-                        Game.Player.Character.Weapons[hash].Ammo += 5;
+                        player_weapons[hash].Ammo += 5;
                         break;
                     }
-                    Game.Player.Character.Weapons.Give(hash, 5, true, true);
+                    player_weapons.Give(hash, 5, true, true);
                     break;
 
                 default:
@@ -233,14 +229,13 @@ namespace WeaponWorkshop
 
         private void OnTimerElapsed(string name)
         {
-            cTimer.Reset();
             foreach (var item in menu_items)
             {
                 menu.Remove(item);
             }
             CreateMenuWeaponItems();
             Notification.Show("Weapon Workshop: Items have been restocked");
-            cTimer.Start();
+            cTimer.Reset();
         }
 
         private void OnAbort(object sender, EventArgs e)
