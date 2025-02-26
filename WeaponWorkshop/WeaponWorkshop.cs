@@ -20,7 +20,6 @@ namespace WeaponWorkshop
         private static string TEXT_MENUNAME = "Get Yourself Strapped Up!";
         private ObjectPool pool = new ObjectPool();
         private NativeMenu menu = new NativeMenu(TEXT_MENUBANNER, TEXT_MENUNAME, "");
-        private List<NativeItem> menu_items = new List<NativeItem>();
         private static NativeItem menu_items_Pistol = new NativeItem("Pistol");
         private static NativeItem menu_items_SMG = new NativeItem("SMG");
         private static NativeItem menu_items_MicroSMG = new NativeItem("Micro SMG");
@@ -30,6 +29,7 @@ namespace WeaponWorkshop
         private static NativeItem menu_items_Shotgun = new NativeItem("Sawed-Off Shotgun");
         private static NativeItem menu_items_Molotov = new NativeItem("Molotov");
         private static NativeItem menu_items_Bat = new NativeItem("Bat");
+        private List<NativeItem> activeMenuItems = new List<NativeItem>();
         private NativeItem[] allMenuItems =
         {
             menu_items_Pistol,
@@ -42,12 +42,12 @@ namespace WeaponWorkshop
             menu_items_Molotov,
             menu_items_Bat
         };
-        private Model chest;
         private Vector3 chestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
         private List<Prop> props = new List<Prop>();
         private GTATimer cTimer;
-        private bool cTimerSet = false;
         private int cTimerInterval = 60000;
+        private bool cTimerSet = false;
+        private bool firstTime = true;
 
         public WeaponWorkshop()
         {
@@ -56,17 +56,6 @@ namespace WeaponWorkshop
 
             pool.Add(menu);
             CreateMenuWeaponItems();
-
-            chest = new Model(NAME_WEAPONCHEST);
-            chest.Request(250);
-            var weaponChest = World.CreateProp(chest, chestLocation, false, true);
-            chest.MarkAsNoLongerNeeded();
-            props.Add(weaponChest);
-            props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
-            props[0].AddBlip();
-            props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
-            props[0].AttachedBlip.Name = TEXT_MENUBANNER;
-            props[0].AttachedBlip.IsShortRange = true;
 
             cTimer = new GTATimer("WeaponsResupplyTimer", cTimerInterval);
             cTimer.onTimerElapsed += OnTimerElapsed;
@@ -113,6 +102,21 @@ namespace WeaponWorkshop
             };
         }
 
+        public Model RequestModel(string prop)
+        {
+            var model = new Model(prop);
+            model.Request(250);
+
+            if (model.IsInCdImage && model.IsValid)
+            {
+                while (!model.IsLoaded) Wait(50);
+                return model;
+            }
+
+            model.MarkAsNoLongerNeeded();
+            return model;
+        }
+
         private void GiveWeapon(WeaponGroup group, WeaponHash hash, NativeItem menuItem)
         {
             var player_weapons = Game.Player.Character.Weapons;
@@ -121,30 +125,35 @@ namespace WeaponWorkshop
             {
                 case WeaponGroup.Pistol:
                     menu.Remove(menuItem);
+                    activeMenuItems.Remove(menuItem);
                     player_weapons.Give(hash, 0, true, true);
                     player_weapons[hash].Ammo += 80;
                     break;
 
                 case WeaponGroup.SMG:
                     menu.Remove(menuItem);
+                    activeMenuItems.Remove(menuItem);
                     player_weapons.Give(hash, 0, true, true);
                     player_weapons[hash].Ammo += 165;
                     break;
 
                 case WeaponGroup.AssaultRifle:
                     menu.Remove(menuItem);
+                    activeMenuItems.Remove(menuItem);
                     player_weapons.Give(hash, 0, true, true);
                     player_weapons[hash].Ammo += 250;
                     break;
 
                 case WeaponGroup.Sniper:
                     menu.Remove(menuItem);
+                    activeMenuItems.Remove(menuItem);
                     player_weapons.Give(hash, 0, true, true);
                     player_weapons[hash].Ammo += 50;
                     break;
 
                 case WeaponGroup.Shotgun:
                     menu.Remove(menuItem);
+                    activeMenuItems.Remove(menuItem);
                     player_weapons.Give(hash, 0, true, true);
                     player_weapons[hash].Ammo += 60;
                     break;
@@ -157,10 +166,12 @@ namespace WeaponWorkshop
                     }
                     player_weapons.Give(hash, 1, true, true);
                     menu.Remove(menuItem);
+                    activeMenuItems.Remove(menuItem);
                     break;
 
                 case WeaponGroup.Thrown:
                     menu.Remove(menuItem);
+                    activeMenuItems.Remove(menuItem);
                     if (player_weapons.HasWeapon(hash))
                     {
                         player_weapons.Select(hash);
@@ -182,18 +193,18 @@ namespace WeaponWorkshop
 
             for (int i = 0; i < poolSize; i++)
             {
-                int selectedWeaponIndex = rand.Next(0, allMenuItems.Length);
-                if (menu_items.Contains(allMenuItems[selectedWeaponIndex]))
+                int selectedItem = rand.Next(0, allMenuItems.Length);
+                if (activeMenuItems.Contains(allMenuItems[selectedItem]))
                 {
                     i--;
                 }
                 else
                 {
-                    menu_items.Add(allMenuItems[selectedWeaponIndex]);
+                    activeMenuItems.Add(allMenuItems[selectedItem]);
                 }
             }
 
-            foreach (var item in menu_items)
+            foreach (var item in activeMenuItems)
             {
                 menu.Add(item);
             }
@@ -202,6 +213,10 @@ namespace WeaponWorkshop
         private void OnTimerElapsed(string name)
         {
             cTimer.Stop();
+            foreach (var item in activeMenuItems)
+            {
+                activeMenuItems.Remove(item);
+            }
             menu.Clear();
             CreateMenuWeaponItems();
             Notification.Show("Weapon Workshop: Items have been restocked");
@@ -210,6 +225,7 @@ namespace WeaponWorkshop
 
         private void OnAbort(object sender, EventArgs e)
         {
+            pool.Remove(menu);
             props[0].AttachedBlip.Delete();
             props[0].Delete();
         }
@@ -219,6 +235,19 @@ namespace WeaponWorkshop
             if (Game.IsLoading) return;
 
             pool.Process();
+
+            if (firstTime)
+            {
+                var weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), chestLocation, false, true);
+                props.Add(weaponChest);
+                props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
+                props[0].AddBlip();
+                props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
+                props[0].AttachedBlip.Name = TEXT_MENUBANNER;
+                props[0].AttachedBlip.IsShortRange = true;
+
+                firstTime = false;
+            }
 
             if (!cTimerSet)
             {
