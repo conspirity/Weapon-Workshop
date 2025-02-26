@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using GTA;
 using GTA.Math;
+using GTA.Native;
 using GTA.UI;
 using GTATimers;
 using LemonUI;
@@ -40,6 +42,7 @@ namespace WeaponWorkshop
             menu_items_Molotov,
             menu_items_Bat
         };
+        private Model chest;
         private Vector3 chestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
         private List<Prop> props = new List<Prop>();
         private GTATimer cTimer;
@@ -54,7 +57,10 @@ namespace WeaponWorkshop
             pool.Add(menu);
             CreateMenuWeaponItems();
 
-            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), chestLocation, false, true);
+            chest = new Model(NAME_WEAPONCHEST);
+            chest.Request(250);
+            var weaponChest = World.CreateProp(chest, chestLocation, false, true);
+            chest.MarkAsNoLongerNeeded();
             props.Add(weaponChest);
             props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
             props[0].AddBlip();
@@ -107,21 +113,6 @@ namespace WeaponWorkshop
             };
         }
 
-        public Model RequestModel(string prop)
-        {
-            var model = new Model(prop);
-            model.Request(250);
-
-            if (model.IsInCdImage && model.IsValid)
-            {
-                while (!model.IsLoaded) Wait(50);
-                return model;
-            }
-
-            model.MarkAsNoLongerNeeded();
-            return model;
-        }
-
         private void GiveWeapon(WeaponGroup group, WeaponHash hash, NativeItem menuItem)
         {
             var player_weapons = Game.Player.Character.Weapons;
@@ -130,52 +121,32 @@ namespace WeaponWorkshop
             {
                 case WeaponGroup.Pistol:
                     menu.Remove(menuItem);
-                    if (player_weapons.HasWeapon(hash))
-                    {
-                        player_weapons[hash].Ammo += 80;
-                        break;
-                    }
-                    player_weapons.Give(hash, 80, true, true);
+                    player_weapons.Give(hash, 0, true, true);
+                    player_weapons[hash].Ammo += 80;
                     break;
 
                 case WeaponGroup.SMG:
                     menu.Remove(menuItem);
-                    if (player_weapons.HasWeapon(hash))
-                    {
-                        player_weapons[hash].Ammo += 165;
-                        break;
-                    }
-                    player_weapons.Give(hash, 165, true, true);
+                    player_weapons.Give(hash, 0, true, true);
+                    player_weapons[hash].Ammo += 165;
                     break;
 
                 case WeaponGroup.AssaultRifle:
                     menu.Remove(menuItem);
-                    if (player_weapons.HasWeapon(hash))
-                    {
-                        player_weapons[hash].Ammo += 250;
-                        break;
-                    }
-                    player_weapons.Give(hash, 250, true, true);
+                    player_weapons.Give(hash, 0, true, true);
+                    player_weapons[hash].Ammo += 250;
                     break;
 
                 case WeaponGroup.Sniper:
                     menu.Remove(menuItem);
-                    if (player_weapons.HasWeapon(hash))
-                    {
-                        player_weapons[hash].Ammo += 50;
-                        break;
-                    }
-                    player_weapons.Give(hash, 50, true, true);
+                    player_weapons.Give(hash, 0, true, true);
+                    player_weapons[hash].Ammo += 50;
                     break;
 
                 case WeaponGroup.Shotgun:
                     menu.Remove(menuItem);
-                    if (player_weapons.HasWeapon(hash))
-                    {
-                        player_weapons[hash].Ammo += 60;
-                        break;
-                    }
-                    player_weapons.Give(hash, 60, true, true);
+                    player_weapons.Give(hash, 0, true, true);
+                    player_weapons[hash].Ammo += 60;
                     break;
 
                 case WeaponGroup.Melee:
@@ -192,6 +163,7 @@ namespace WeaponWorkshop
                     menu.Remove(menuItem);
                     if (player_weapons.HasWeapon(hash))
                     {
+                        player_weapons.Select(hash);
                         player_weapons[hash].Ammo += 5;
                         break;
                     }
@@ -229,10 +201,8 @@ namespace WeaponWorkshop
 
         private void OnTimerElapsed(string name)
         {
-            foreach (var item in menu_items)
-            {
-                menu.Remove(item);
-            }
+            cTimer.Stop();
+            menu.Clear();
             CreateMenuWeaponItems();
             Notification.Show("Weapon Workshop: Items have been restocked");
             cTimer.Reset();
