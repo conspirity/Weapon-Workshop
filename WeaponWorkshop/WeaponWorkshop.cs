@@ -18,17 +18,29 @@ namespace WeaponWorkshop
         private static string TEXT_MENUNAME = "Get Yourself Strapped Up!";
         private ObjectPool pool = new ObjectPool();
         private NativeMenu menu = new NativeMenu(TEXT_MENUBANNER, TEXT_MENUNAME, "");
-        private NativeItem menu_weaponPistol = new NativeItem("Pistol");
-        private NativeItem menu_weaponSMG = new NativeItem("SMG");
-        private NativeItem menu_weaponMicroSMG = new NativeItem("Micro SMG");
-        private NativeItem menu_weaponCarbineRifle = new NativeItem("Carbine Rifle");
-        private NativeItem menu_weaponAssaultRifle = new NativeItem("Assault Rifle");
-        private NativeItem menu_weaponHeavySniper = new NativeItem("Heavy Sniper");
-        private NativeItem menu_weaponShotgun = new NativeItem("Sawed-Off Shotgun");
-        private NativeItem menu_weaponMolotov = new NativeItem("Molotov");
-        private NativeItem menu_weaponBat = new NativeItem("Bat");
-        private List<NativeItem> menuItems = new List<NativeItem>();
-        private Vector3 weaponChestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
+        private List<NativeItem> menu_items = new List<NativeItem>();
+        private static NativeItem menu_items_Pistol = new NativeItem("Pistol");
+        private static NativeItem menu_items_SMG = new NativeItem("SMG");
+        private static NativeItem menu_items_MicroSMG = new NativeItem("Micro SMG");
+        private static NativeItem menu_items_CarbineRifle = new NativeItem("Carbine Rifle");
+        private static NativeItem menu_items_AssaultRifle = new NativeItem("Assault Rifle");
+        private static NativeItem menu_items_HeavySniper = new NativeItem("Heavy Sniper");
+        private static NativeItem menu_items_Shotgun = new NativeItem("Sawed-Off Shotgun");
+        private static NativeItem menu_items_Molotov = new NativeItem("Molotov");
+        private static NativeItem menu_items_Bat = new NativeItem("Bat");
+        private NativeItem[] allMenuItems =
+        {
+            menu_items_Pistol,
+            menu_items_SMG,
+            menu_items_MicroSMG,
+            menu_items_CarbineRifle,
+            menu_items_AssaultRifle,
+            menu_items_HeavySniper,
+            menu_items_Shotgun,
+            menu_items_Molotov,
+            menu_items_Bat
+        };
+        private Vector3 chestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
         private List<Prop> props = new List<Prop>();
         private GTATimer cTimer;
         private bool cTimerSet = false;
@@ -42,7 +54,7 @@ namespace WeaponWorkshop
             pool.Add(menu);
             CreateMenuWeaponItems();
 
-            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), weaponChestLocation, false, true);
+            Prop weaponChest = World.CreateProp(RequestModel(NAME_WEAPONCHEST), chestLocation, false, true);
 
             props.Add(weaponChest);
 
@@ -56,15 +68,46 @@ namespace WeaponWorkshop
             cTimer = new GTATimer("timer", cTimerInterval);
             cTimer.onTimerElapsed += OnTimerElapsed;
 
-            menu_weaponPistol.Activated += GiveWeapon(WeaponGroup.Pistol, WeaponHash.Pistol, menu_weaponPistol);
-            menu_weaponSMG.Activated += GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, menu_weaponSMG);
-            menu_weaponMicroSMG.Activated += GiveWeapon(WeaponGroup.SMG, WeaponHash.MicroSMG, menu_weaponMicroSMG);
-            menu_weaponCarbineRifle.Activated += GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.CarbineRifle, menu_weaponCarbineRifle);
-            menu_weaponAssaultRifle.Activated += GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.AssaultRifle, menu_weaponAssaultRifle);
-            menu_weaponHeavySniper.Activated += GiveWeapon(WeaponGroup.Sniper, WeaponHash.HeavySniper, menu_weaponHeavySniper);
-            menu_weaponShotgun.Activated += GiveWeapon(WeaponGroup.Shotgun, WeaponHash.SawnOffShotgun, menu_weaponShotgun);
-            menu_weaponMolotov.Activated += GiveWeapon(WeaponGroup.Thrown, WeaponHash.Molotov, menu_weaponMolotov);
-            menu_weaponBat.Activated += GiveWeapon(WeaponGroup.Melee, WeaponHash.Bat, menu_weaponBat);
+            menu_items_Pistol.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.Pistol, WeaponHash.Pistol, menu_items_Pistol);
+            };
+            menu_items_SMG.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, menu_items_SMG);
+            };
+            menu_items_SMG.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, menu_items_SMG);
+            };
+            menu_items_MicroSMG.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.SMG, WeaponHash.MicroSMG, menu_items_MicroSMG);
+            };
+            menu_items_CarbineRifle.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.CarbineRifle, menu_items_CarbineRifle);
+            };
+            menu_items_AssaultRifle.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.AssaultRifle, menu_items_AssaultRifle);
+            };
+            menu_items_HeavySniper.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.Sniper, WeaponHash.HeavySniper, menu_items_HeavySniper);
+            };
+            menu_items_Shotgun.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.Shotgun, WeaponHash.SawnOffShotgun, menu_items_Shotgun);
+            };
+            menu_items_Molotov.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.Thrown, WeaponHash.Molotov, menu_items_Molotov);
+            };
+            menu_items_Bat.Activated += (object sender, EventArgs e) =>
+            {
+                GiveWeapon(WeaponGroup.Melee, WeaponHash.Bat, menu_items_Bat);
+            };
         }
 
         private static Model RequestModel(string prop)
@@ -76,7 +119,7 @@ namespace WeaponWorkshop
             {
                 while (!model.IsLoaded)
                 {
-                    Script.Wait(50);
+                    Wait(50);
                 }
                 return model;
             }
@@ -85,7 +128,7 @@ namespace WeaponWorkshop
             return model;
         }
 
-        private EventHandler GiveWeapon(WeaponGroup group, WeaponHash hash, NativeItem menuItem)
+        private void GiveWeapon(WeaponGroup group, WeaponHash hash, NativeItem menuItem)
         {
             switch (group)
             {
@@ -162,41 +205,27 @@ namespace WeaponWorkshop
                 default:
                     break;
             }
-
-            return null;
         }
 
         private void CreateMenuWeaponItems()
         {
-            NativeItem[] allMenuWeaponItems =
-            { 
-                menu_weaponPistol,
-                menu_weaponMicroSMG,
-                menu_weaponSMG,
-                menu_weaponAssaultRifle,
-                menu_weaponCarbineRifle,
-                menu_weaponHeavySniper,
-                menu_weaponShotgun,
-                menu_weaponMolotov,
-                menu_weaponBat
-            };
             var rand = new Random();
             int poolSize = rand.Next(3, 5);
 
             for (int i = 0; i < poolSize; i++)
             {
-                int selectedWeaponIndex = rand.Next(0, allMenuWeaponItems.Length);
-                if (menuItems.Contains(allMenuWeaponItems[selectedWeaponIndex]))
+                int selectedWeaponIndex = rand.Next(0, allMenuItems.Length);
+                if (menu_items.Contains(allMenuItems[selectedWeaponIndex]))
                 {
                     i--;
                 }
                 else
                 {
-                    menuItems.Add(allMenuWeaponItems[selectedWeaponIndex]);
+                    menu_items.Add(allMenuItems[selectedWeaponIndex]);
                 }
             }
 
-            foreach (var item in menuItems)
+            foreach (var item in menu_items)
             {
                 menu.Add(item);
             }
@@ -205,7 +234,7 @@ namespace WeaponWorkshop
         private void OnTimerElapsed(string name)
         {
             cTimer.Reset();
-            foreach (var item in menuItems)
+            foreach (var item in menu_items)
             {
                 menu.Remove(item);
             }
