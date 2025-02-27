@@ -1,5 +1,6 @@
-﻿// Credits: unknown user from GTA Forums
-// https://gtaforums.com/topic/924484-c-using-timers-and-intervals/
+﻿// Original author of this script file: unknown user from GTA Forums
+// source: https://gtaforums.com/topic/924484-c-using-timers-and-intervals/
+// Modified by ConcatSpirity
 
 using GTA;
 
@@ -9,13 +10,12 @@ namespace GTATimers
 
     public class GTATimer
     {
-        public event TimerElapsedEvent onTimerElapsed;
+        private int _counter;
+        private int _lastGameTime;
 
+        public event TimerElapsedEvent OnTimerElapsed;
         public string Name;
-        private int Interval;
-        private int Counter;
-        private int LastGameTime;
-
+        public int Interval;
         public bool Running;
 
         public GTATimer(string name, int interval)
@@ -26,8 +26,8 @@ namespace GTATimers
 
         public void Start()
         {
-            LastGameTime = Game.GameTime;
-            Counter = Interval;
+            _lastGameTime = Game.GameTime;
+            _counter = Interval;
             Running = true;
         }
 
@@ -43,15 +43,15 @@ namespace GTATimers
 
         public void Reset()
         {
-            Counter = Interval;
+            _counter = Interval;
             Running = true;
         }
 
         public void Update()
         {
             int currentTime = Game.GameTime;
-            int elapsedTime = currentTime - LastGameTime;
-            LastGameTime = currentTime;
+            int elapsedTime = currentTime - _lastGameTime;
+            _lastGameTime = currentTime;
             DecrementTimer(elapsedTime);
         }
 
@@ -62,12 +62,12 @@ namespace GTATimers
 
         private void DecrementTimer(int amount)
         {
-            Counter -= amount;
+            _counter -= amount;
 
-            if (Counter <= 0)
+            if (_counter <= 0)
             {
-                onTimerElapsed?.Invoke(Name);
-                Counter += Interval;
+                OnTimerElapsed?.Invoke(Name);
+                _counter += Interval;
             }
         }
     }

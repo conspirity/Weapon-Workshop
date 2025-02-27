@@ -56,7 +56,7 @@ namespace WeaponWorkshop
             CreateMenuWeaponItems();
 
             cTimer = new GTATimer("WeaponsResupplyTimer", cTimerInterval);
-            cTimer.onTimerElapsed += OnTimerElapsed;
+            cTimer.OnTimerElapsed += OnTimerElapsed;
 
             menu_items_Pistol.Activated += (object sender, EventArgs e) =>
             {
@@ -100,6 +100,7 @@ namespace WeaponWorkshop
             };
         }
 
+        // This function must only be called inside the main script loop
         public Model RequestModel(string prop)
         {
             var model = new Model(prop);
