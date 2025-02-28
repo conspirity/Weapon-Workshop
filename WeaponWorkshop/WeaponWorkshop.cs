@@ -37,7 +37,6 @@ namespace WeaponWorkshop
             _menu_items_Molotov,
             _menu_items_Bat
         };
-        private Vector3 _chestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
         private List<Prop> _props = new List<Prop>();
         private GTATimer _cTimer;
         private int _cTimerInterval = 900000;
@@ -56,7 +55,6 @@ namespace WeaponWorkshop
             _cTimer.OnTimerElapsed += Resupply;
 
             _menu_items_Pistol.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.Pistol, WeaponHash.Pistol, _menu_items_Pistol);
-            _menu_items_SMG.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, _menu_items_SMG);
             _menu_items_SMG.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, _menu_items_SMG);
             _menu_items_MicroSMG.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.SMG, WeaponHash.MicroSMG, _menu_items_MicroSMG);
             _menu_items_CarbineRifle.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.CarbineRifle, _menu_items_CarbineRifle);
@@ -200,7 +198,7 @@ namespace WeaponWorkshop
 
             if (!_initialized)
             {
-                var weaponChest = World.CreateProp(RequestModel("prop_mil_crate_01"), _chestLocation, false, true);
+                var weaponChest = World.CreateProp(RequestModel("prop_mil_crate_01"), new Vector3(-192.2758f, -1362.0439f, 30.7082f), false, true);
                 _props.Add(weaponChest);
                 _props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
                 _props[0].AddBlip();
