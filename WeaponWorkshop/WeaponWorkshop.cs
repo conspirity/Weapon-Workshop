@@ -40,7 +40,7 @@ namespace WeaponWorkshop
         private Vector3 _chestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
         private List<Prop> _props = new List<Prop>();
         private GTATimer _cTimer;
-        private int _cTimerInterval = 20000;
+        private int _cTimerInterval = 900000;
         private bool _cTimerSet;
         private bool _initialized;
 
