@@ -3,7 +3,6 @@
 // Modified by ConcatSpirity
 
 using GTA;
-using System;
 
 namespace GTATimers
 {
