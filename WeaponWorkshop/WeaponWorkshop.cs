@@ -15,8 +15,10 @@ namespace WeaponWorkshop
     public class WeaponWorkshop : Script
     {
         private ScriptSettings _config;
+
         private ObjectPool _pool = new ObjectPool();
         private NativeMenu _menu = new NativeMenu("Weapon Workshop", "Get Yourself Strapped Up!", "");
+
         private static NativeItem _menu_items_Pistol = new NativeItem("Pistol");
         private static NativeItem _menu_items_SMG = new NativeItem("SMG");
         private static NativeItem _menu_items_MicroSMG = new NativeItem("Micro SMG");
@@ -26,7 +28,9 @@ namespace WeaponWorkshop
         private static NativeItem _menu_items_Shotgun = new NativeItem("Sawed-Off Shotgun");
         private static NativeItem _menu_items_Molotov = new NativeItem("Molotov");
         private static NativeItem _menu_items_Bat = new NativeItem("Bat");
+
         private List<NativeItem> _activeMenuItems = new List<NativeItem>();
+
         private NativeItem[] _allMenuItems =
         {
             _menu_items_Pistol,
@@ -39,13 +43,16 @@ namespace WeaponWorkshop
             _menu_items_Molotov,
             _menu_items_Bat
         };
+
         private int _ammoToGive_pistol;
         private int _ammoToGive_smg;
         private int _ammoToGive_rifle;
         private int _ammoToGive_shotgun;
         private int _ammoToGive_sniper;
         private int _ammoToGive_throw;
+
         private List<Prop> _props = new List<Prop>();
+
         private GTATimer _resupplyTimer;
         private int _resupplyInterval;
         private bool _isResupplyTimerSet;
@@ -187,7 +194,7 @@ namespace WeaponWorkshop
             Notification.Show("Weapon Workshop: Items have been restocked");
         }
 
-        void DisplayHelpTextThisFrame(string text)
+        private void DisplayHelpTextThisFrame(string text)
         {
             Function.Call(Hash.DISPLAY_HELP_TEXT_THIS_FRAME, text);
         }
@@ -197,6 +204,12 @@ namespace WeaponWorkshop
             _pool.Remove(_menu);
             _props[0].AttachedBlip.Delete();
             _props[0].Delete();
+
+            if (_isResupplyTimerSet)
+            {
+                _resupplyTimer.Stop();
+                _resupplyTimer = null;
+            }
         }
 
         private void OnTick(object sender, EventArgs e)
@@ -224,15 +237,24 @@ namespace WeaponWorkshop
             }
             else
             {
-                if (_resupplyTimer.Running) _resupplyTimer.Update();
+                if (_resupplyTimer.Running)
+                {
+                    _resupplyTimer.Update();
+                }
             }
 
             if (World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 3)
             {
                 DisplayHelpTextThisFrame("Press ~INPUT_CONTEXT~ to open the weapons chest");
-                if (Game.IsControlJustPressed(Control.Context)) _menu.Visible = true;
+                if (Game.IsControlJustPressed(Control.Context))
+                {
+                    _menu.Visible = true;
+                }
             }
-            else _menu.Visible = false;
+            else 
+            { 
+                _menu.Visible = false;
+            }
         }
     }
 }
