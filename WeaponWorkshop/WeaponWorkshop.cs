@@ -122,7 +122,7 @@ namespace WeaponWorkshop
 
             if (model.IsInCdImage && model.IsValid)
             {
-                while (!model.IsLoaded) Wait(50);
+                while (!model.IsLoaded) Wait(250);
                 return model;
             }
 
