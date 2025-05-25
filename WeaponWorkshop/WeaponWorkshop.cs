@@ -114,7 +114,7 @@ namespace WeaponWorkshop
             }
         }
 
-        // This function must only be called inside the main script loop
+        // Only call this function from the main loop
         private Model RequestModel(string prop)
         {
             var model = new Model(prop);
@@ -216,6 +216,7 @@ namespace WeaponWorkshop
 
             _pool.Process();
 
+            // spawn props as the script loads for the first time
             if (!_isInitialized)
             {
                 var weaponChest = World.CreateProp(RequestModel("prop_mil_crate_01"), new Vector3(-192.2758f, -1362.0439f, 30.7082f), new Vector3(0.0f, 0.0f, 120.0f), false, true);
@@ -228,6 +229,7 @@ namespace WeaponWorkshop
                 _isInitialized = true;
             }
 
+            // handle interval timer
             if (!_isResupplyTimerSet)
             {
                 _resupplyTimer.Start();
@@ -238,11 +240,15 @@ namespace WeaponWorkshop
                 if (_resupplyTimer.Running) _resupplyTimer.Update();
             }
 
+            // handle menu based on player distance from the chest
             if (World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 3)
             {
                 _menu.Visible = true;
             }
-            else _menu.Visible = false;
+            else
+            {
+                _menu.Visible = false;
+            }
         }
     }
 }
