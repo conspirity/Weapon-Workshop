@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using GTA;
 using GTA.Math;
+using GTA.Native;
 using GTA.UI;
 using GTATimers;
 using LemonUI;
@@ -197,6 +198,16 @@ namespace WeaponWorkshop
             Notification.Show("Weapon Workshop: Items have been restocked");
         }
 
+        private void DisplayHelpTextThisFrame(string text)
+        {
+            InputArgument[] args = new InputArgument[] { "STRING" };
+            Function.Call(Hash.BEGIN_TEXT_COMMAND_DISPLAY_HELP, args);
+            InputArgument[] args2 = new InputArgument[] { text };
+            Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME, args2);
+            InputArgument[] args3 = new InputArgument[] { 0, 0, 1, -1 };
+            Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_HELP, args3);
+        }
+
         private void OnAbort(object sender, EventArgs e)
         {
             _pool.Remove(_menu);
@@ -243,7 +254,11 @@ namespace WeaponWorkshop
             // handle menu based on player distance from the chest
             if (World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 3)
             {
-                _menu.Visible = true;
+                DisplayHelpTextThisFrame("Press ~INPUT_CONTEXT~ to open the chest");
+                if (Game.IsControlJustPressed(Control.Context))
+                {
+                    _menu.Visible = true;
+                }
             }
             else
             {
