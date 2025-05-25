@@ -1,4 +1,6 @@
-﻿// Copyright (c) 2025 ConcatSpirity
+﻿/*
+ * Copyright (c) 2025 ConcatSpirity
+ */
 
 using System;
 using System.Collections.Generic;
