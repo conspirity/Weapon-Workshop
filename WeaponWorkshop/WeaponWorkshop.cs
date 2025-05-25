@@ -56,6 +56,7 @@ namespace WeaponWorkshop
         private GTATimer _resupplyTimer;
         private int _resupplyInterval;
         private bool _isResupplyTimerSet;
+
         private bool _isInitialized;
 
         public WeaponWorkshop()
@@ -194,11 +195,6 @@ namespace WeaponWorkshop
             Notification.Show("Weapon Workshop: Items have been restocked");
         }
 
-        private void DisplayHelpTextThisFrame(string text)
-        {
-            Function.Call(Hash.DISPLAY_HELP_TEXT_THIS_FRAME, text);
-        }
-
         private void OnAbort(object sender, EventArgs e)
         {
             _pool.Remove(_menu);
@@ -237,24 +233,14 @@ namespace WeaponWorkshop
             }
             else
             {
-                if (_resupplyTimer.Running)
-                {
-                    _resupplyTimer.Update();
-                }
+                if (_resupplyTimer.Running) _resupplyTimer.Update();
             }
 
             if (World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 3)
             {
-                DisplayHelpTextThisFrame("Press ~INPUT_CONTEXT~ to open the weapons chest");
-                if (Game.IsControlJustPressed(Control.Context))
-                {
-                    _menu.Visible = true;
-                }
+                _menu.Visible = true;
             }
-            else 
-            { 
-                _menu.Visible = false;
-            }
+            else _menu.Visible = false;
         }
     }
 }
