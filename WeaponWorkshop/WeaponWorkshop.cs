@@ -1,4 +1,5 @@
 ﻿/*
+ * Main script file
  * Copyright (c) 2025 ConcatSpirity
  */
 
@@ -18,7 +19,7 @@ namespace WeaponWorkshop
         private ScriptSettings _config;
 
         private ObjectPool _pool = new ObjectPool();
-        private NativeMenu _menu = new NativeMenu("Weapon Workshop", "Get Yourself Strapped Up!", "");
+        private NativeMenu _menu = new NativeMenu("Weapon Workshop", "Get Yourself Strapped Up!");
 
         private static NativeItem _menu_items_Pistol = new NativeItem("Pistol");
         private static NativeItem _menu_items_SMG = new NativeItem("SMG");
