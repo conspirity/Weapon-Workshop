@@ -56,10 +56,14 @@ namespace WeaponWorkshop
 
         private List<Prop> _props = new List<Prop>();
 
+        private Vector3 chestPos = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
+        private Vector3 chestRot = new Vector3(0.0f, 0.0f, 120.0f);
+
         private GTATimer _resupplyTimer;
         private int _resupplyInterval;
         private bool _isResupplyTimerSet;
 
+        private bool _isFirstTime = true;
         private bool _isInitialized;
 
         public WeaponWorkshop()
@@ -133,7 +137,7 @@ namespace WeaponWorkshop
 
         private void GiveWeapon(WeaponGroup group, WeaponHash hash, int ammo, NativeItem menuItem)
         {
-            var player_weapons = Game.Player.Character.Weapons;
+            var playerWeapons = Game.Player.Character.Weapons;
 
             switch (group)
             {
@@ -145,17 +149,17 @@ namespace WeaponWorkshop
                 case WeaponGroup.Thrown:
                     _menu.Remove(menuItem);
                     _activeMenuItems.Remove(menuItem);
-                    player_weapons.Give(hash, 0, true, true);
-                    player_weapons[hash].Ammo += ammo;
+                    playerWeapons.Give(hash, 0, true, true);
+                    playerWeapons[hash].Ammo += ammo;
                     break;
 
                 case WeaponGroup.Melee:
-                    if (player_weapons.HasWeapon(hash))
+                    if (playerWeapons.HasWeapon(hash))
                     {
                         Notification.Show("You already have this melee weapon");
                         break;
                     }
-                    player_weapons.Give(hash, 1, true, true);
+                    playerWeapons.Give(hash, 1, true, true);
                     _menu.Remove(menuItem);
                     _activeMenuItems.Remove(menuItem);
                     break;
@@ -198,6 +202,24 @@ namespace WeaponWorkshop
             Notification.Show("Weapon Workshop: Items have been restocked");
         }
 
+        private void RemoveChest()
+        {
+            _props[0].AttachedBlip.Delete();
+            _props[0].Delete();
+            _props = null;
+        }
+
+        private void SpawnChest()
+        {
+            _props = new List<Prop>();
+            var weaponChest = World.CreateProp(RequestModel("prop_mil_crate_01"), chestPos, chestRot, false, true);
+            _props.Add(weaponChest);
+            _props[0].AddBlip();
+            _props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
+            _props[0].AttachedBlip.Name = "Weapon Workshop";
+            _props[0].AttachedBlip.IsShortRange = true;
+        }
+
         private void DisplayHelpTextThisFrame(string text)
         {
             InputArgument[] args = new InputArgument[] { "STRING" };
@@ -211,8 +233,7 @@ namespace WeaponWorkshop
         private void OnAbort(object sender, EventArgs e)
         {
             _pool.Remove(_menu);
-            _props[0].AttachedBlip.Delete();
-            _props[0].Delete();
+            RemoveChest();
 
             if (_isResupplyTimerSet)
             {
@@ -227,17 +248,18 @@ namespace WeaponWorkshop
 
             _pool.Process();
 
-            // spawn props as the script loads for the first time
             if (!_isInitialized)
             {
-                var weaponChest = World.CreateProp(RequestModel("prop_mil_crate_01"), new Vector3(-192.2758f, -1362.0439f, 30.7082f), new Vector3(0.0f, 0.0f, 120.0f), false, true);
-                _props.Add(weaponChest);
-                _props[0].AddBlip();
-                _props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
-                _props[0].AttachedBlip.Name = "Weapon Workshop";
-                _props[0].AttachedBlip.IsShortRange = true;
-
+                SpawnChest();
                 _isInitialized = true;
+            }
+
+            // this little trick fixes the chest not spawning when the script loads for the first time
+            if (_isFirstTime && _isInitialized && _props.Count > 0 && World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 40.0f)
+            {
+                RemoveChest();
+                SpawnChest();
+                _isFirstTime = false;
             }
 
             // handle interval timer
@@ -252,7 +274,7 @@ namespace WeaponWorkshop
             }
 
             // handle menu based on player distance from the chest
-            if (World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 3)
+            if (World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 3.0f)
             {
                 DisplayHelpTextThisFrame("Press ~INPUT_CONTEXT~ to open the chest");
                 if (Game.IsControlJustPressed(Control.Context))
