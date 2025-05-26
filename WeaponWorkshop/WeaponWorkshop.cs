@@ -1,9 +1,13 @@
-﻿// Copyright (c) 2025 ConcatSpirity
+﻿/*
+ * Main script file
+ * Copyright (c) 2025 ConcatSpirity
+ */
 
 using System;
 using System.Collections.Generic;
 using GTA;
 using GTA.Math;
+using GTA.Native;
 using GTA.UI;
 using GTATimers;
 using LemonUI;
@@ -13,8 +17,11 @@ namespace WeaponWorkshop
 {
     public class WeaponWorkshop : Script
     {
+        private ScriptSettings _config;
+
         private ObjectPool _pool = new ObjectPool();
-        private NativeMenu _menu = new NativeMenu("Weapon Workshop", "Get Yourself Strapped Up!", "");
+        private NativeMenu _menu = new NativeMenu("Weapon Workshop", "Get Yourself Strapped Up!");
+
         private static NativeItem _menu_items_Pistol = new NativeItem("Pistol");
         private static NativeItem _menu_items_SMG = new NativeItem("SMG");
         private static NativeItem _menu_items_MicroSMG = new NativeItem("Micro SMG");
@@ -24,7 +31,9 @@ namespace WeaponWorkshop
         private static NativeItem _menu_items_Shotgun = new NativeItem("Sawed-Off Shotgun");
         private static NativeItem _menu_items_Molotov = new NativeItem("Molotov");
         private static NativeItem _menu_items_Bat = new NativeItem("Bat");
+
         private List<NativeItem> _activeMenuItems = new List<NativeItem>();
+
         private NativeItem[] _allMenuItems =
         {
             _menu_items_Pistol,
@@ -37,37 +46,80 @@ namespace WeaponWorkshop
             _menu_items_Molotov,
             _menu_items_Bat
         };
-        private Vector3 _chestLocation = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
+
+        private int _ammoToGive_pistol;
+        private int _ammoToGive_smg;
+        private int _ammoToGive_rifle;
+        private int _ammoToGive_shotgun;
+        private int _ammoToGive_sniper;
+        private int _ammoToGive_throw;
+
         private List<Prop> _props = new List<Prop>();
-        private GTATimer _cTimer;
-        private int _cTimerInterval = 900000;
-        private bool _cTimerSet;
-        private bool _initialized;
+
+        private Vector3 chestPos = new Vector3(-192.2758f, -1362.0439f, 30.7082f);
+        private Vector3 chestRot = new Vector3(0.0f, 0.0f, 120.0f);
+
+        private GTATimer _resupplyTimer;
+        private int _resupplyInterval;
+        private bool _isResupplyTimerSet;
+
+        private bool _isFirstTime = true;
+        private bool _isInitialized;
 
         public WeaponWorkshop()
         {
             Tick += OnTick;
             Aborted += OnAbort;
 
+            LoadIniFile("scripts//WeaponWorkshop.ini");
+            _resupplyInterval = _config.GetValue("General", "resupply_interval", 900000);
+
+            _ammoToGive_pistol = _config.GetValue("Ammo", "pistol", 80);
+            _ammoToGive_smg = _config.GetValue("Ammo", "smg", 120);
+            _ammoToGive_rifle = _config.GetValue("Ammo", "rifle", 250);
+            _ammoToGive_shotgun = _config.GetValue("Ammo", "shotgun", 60);
+            _ammoToGive_sniper = _config.GetValue("Ammo", "sniper", 40);
+            _ammoToGive_throw = _config.GetValue("Ammo", "throw", 5);
+
             _pool.Add(_menu);
             CreateMenuWeaponItems();
 
-            _cTimer = new GTATimer("WeaponsResupplyTimer", _cTimerInterval);
-            _cTimer.OnTimerElapsed += Resupply;
+            _resupplyTimer = new GTATimer("WeaponsResupplyTimer", _resupplyInterval);
+            _resupplyTimer.OnTimerElapsed += Resupply;
 
-            _menu_items_Pistol.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.Pistol, WeaponHash.Pistol, _menu_items_Pistol);
-            _menu_items_SMG.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, _menu_items_SMG);
-            _menu_items_SMG.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, _menu_items_SMG);
-            _menu_items_MicroSMG.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.SMG, WeaponHash.MicroSMG, _menu_items_MicroSMG);
-            _menu_items_CarbineRifle.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.CarbineRifle, _menu_items_CarbineRifle);
-            _menu_items_AssaultRifle.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.AssaultRifle, _menu_items_AssaultRifle);
-            _menu_items_HeavySniper.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.Sniper, WeaponHash.HeavySniper, _menu_items_HeavySniper);
-            _menu_items_Shotgun.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.Shotgun, WeaponHash.SawnOffShotgun, _menu_items_Shotgun);
-            _menu_items_Molotov.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.Thrown, WeaponHash.Molotov, _menu_items_Molotov);
-            _menu_items_Bat.Activated += (object sender, EventArgs e) => GiveWeapon(WeaponGroup.Melee, WeaponHash.Bat, _menu_items_Bat);
+            _menu_items_Pistol.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.Pistol, WeaponHash.Pistol, _ammoToGive_pistol, _menu_items_Pistol);
+            _menu_items_SMG.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.SMG, WeaponHash.SMG, _ammoToGive_smg, _menu_items_SMG);
+            _menu_items_MicroSMG.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.SMG, WeaponHash.MicroSMG, _ammoToGive_smg, _menu_items_MicroSMG);
+            _menu_items_CarbineRifle.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.CarbineRifle, _ammoToGive_rifle, _menu_items_CarbineRifle);
+            _menu_items_AssaultRifle.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.AssaultRifle, WeaponHash.AssaultRifle, _ammoToGive_rifle, _menu_items_AssaultRifle);
+            _menu_items_HeavySniper.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.Sniper, WeaponHash.HeavySniper, _ammoToGive_sniper, _menu_items_HeavySniper);
+            _menu_items_Shotgun.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.Shotgun, WeaponHash.SawnOffShotgun, _ammoToGive_shotgun, _menu_items_Shotgun);
+            _menu_items_Molotov.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.Thrown, WeaponHash.Molotov, _ammoToGive_throw, _menu_items_Molotov);
+            _menu_items_Bat.Activated += (object sender, EventArgs e)
+                => GiveWeapon(WeaponGroup.Melee, WeaponHash.Bat, 1, _menu_items_Bat);
         }
 
-        // This function must only be called inside the main script loop
+        private void LoadIniFile(string iniFile)
+        {
+            try
+            {
+                _config = ScriptSettings.Load(iniFile);
+            }
+            catch
+            {
+                Notification.Show("~r~Error~w~: Failed to load WeaponWorkshop.ini");
+            }
+        }
+
+        // Only call this function from the main loop
         private Model RequestModel(string prop)
         {
             var model = new Model(prop);
@@ -75,7 +127,7 @@ namespace WeaponWorkshop
 
             if (model.IsInCdImage && model.IsValid)
             {
-                while (!model.IsLoaded) Wait(50);
+                while (!model.IsLoaded) Wait(250);
                 return model;
             }
 
@@ -83,68 +135,33 @@ namespace WeaponWorkshop
             return model;
         }
 
-        private void GiveWeapon(WeaponGroup group, WeaponHash hash, NativeItem menuItem)
+        private void GiveWeapon(WeaponGroup group, WeaponHash hash, int ammo, NativeItem menuItem)
         {
-            var player_weapons = Game.Player.Character.Weapons;
+            var playerWeapons = Game.Player.Character.Weapons;
 
             switch (group)
             {
                 case WeaponGroup.Pistol:
-                    _menu.Remove(menuItem);
-                    _activeMenuItems.Remove(menuItem);
-                    player_weapons.Give(hash, 0, true, true);
-                    player_weapons[hash].Ammo += 80;
-                    break;
-
                 case WeaponGroup.SMG:
-                    _menu.Remove(menuItem);
-                    _activeMenuItems.Remove(menuItem);
-                    player_weapons.Give(hash, 0, true, true);
-                    player_weapons[hash].Ammo += 165;
-                    break;
-
                 case WeaponGroup.AssaultRifle:
-                    _menu.Remove(menuItem);
-                    _activeMenuItems.Remove(menuItem);
-                    player_weapons.Give(hash, 0, true, true);
-                    player_weapons[hash].Ammo += 250;
-                    break;
-
                 case WeaponGroup.Sniper:
-                    _menu.Remove(menuItem);
-                    _activeMenuItems.Remove(menuItem);
-                    player_weapons.Give(hash, 0, true, true);
-                    player_weapons[hash].Ammo += 50;
-                    break;
-
                 case WeaponGroup.Shotgun:
+                case WeaponGroup.Thrown:
                     _menu.Remove(menuItem);
                     _activeMenuItems.Remove(menuItem);
-                    player_weapons.Give(hash, 0, true, true);
-                    player_weapons[hash].Ammo += 60;
+                    playerWeapons.Give(hash, 0, true, true);
+                    playerWeapons[hash].Ammo += ammo;
                     break;
 
                 case WeaponGroup.Melee:
-                    if (player_weapons.HasWeapon(hash))
+                    if (playerWeapons.HasWeapon(hash))
                     {
                         Notification.Show("You already have this melee weapon");
                         break;
                     }
-                    player_weapons.Give(hash, 1, true, true);
+                    playerWeapons.Give(hash, 1, true, true);
                     _menu.Remove(menuItem);
                     _activeMenuItems.Remove(menuItem);
-                    break;
-
-                case WeaponGroup.Thrown:
-                    _menu.Remove(menuItem);
-                    _activeMenuItems.Remove(menuItem);
-                    if (player_weapons.HasWeapon(hash))
-                    {
-                        player_weapons.Select(hash);
-                        player_weapons[hash].Ammo += 5;
-                        break;
-                    }
-                    player_weapons.Give(hash, 5, true, true);
                     break;
 
                 default:
@@ -178,18 +195,51 @@ namespace WeaponWorkshop
 
         private void Resupply()
         {
-            _cTimer.Reset();
+            _resupplyTimer.Reset();
             _activeMenuItems.Clear();
             _menu.Clear();
             CreateMenuWeaponItems();
             Notification.Show("Weapon Workshop: Items have been restocked");
         }
 
+        private void RemoveChest()
+        {
+            _props[0].AttachedBlip.Delete();
+            _props[0].Delete();
+            _props = null;
+        }
+
+        private void SpawnChest()
+        {
+            _props = new List<Prop>();
+            var weaponChest = World.CreateProp(RequestModel("prop_mil_crate_01"), chestPos, chestRot, false, true);
+            _props.Add(weaponChest);
+            _props[0].AddBlip();
+            _props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
+            _props[0].AttachedBlip.Name = "Weapon Workshop";
+            _props[0].AttachedBlip.IsShortRange = true;
+        }
+
+        private void DisplayHelpTextThisFrame(string text)
+        {
+            InputArgument[] args = new InputArgument[] { "STRING" };
+            Function.Call(Hash.BEGIN_TEXT_COMMAND_DISPLAY_HELP, args);
+            InputArgument[] args2 = new InputArgument[] { text };
+            Function.Call(Hash.ADD_TEXT_COMPONENT_SUBSTRING_PLAYER_NAME, args2);
+            InputArgument[] args3 = new InputArgument[] { 0, 0, 1, -1 };
+            Function.Call(Hash.END_TEXT_COMMAND_DISPLAY_HELP, args3);
+        }
+
         private void OnAbort(object sender, EventArgs e)
         {
             _pool.Remove(_menu);
-            _props[0].AttachedBlip.Delete();
-            _props[0].Delete();
+            RemoveChest();
+
+            if (_isResupplyTimerSet)
+            {
+                _resupplyTimer.Stop();
+                _resupplyTimer = null;
+            }
         }
 
         private void OnTick(object sender, EventArgs e)
@@ -198,32 +248,39 @@ namespace WeaponWorkshop
 
             _pool.Process();
 
-            if (!_initialized)
+            if (!_isInitialized)
             {
-                var weaponChest = World.CreateProp(RequestModel("prop_mil_crate_01"), _chestLocation, false, true);
-                _props.Add(weaponChest);
-                _props[0].Rotation = new Vector3(0.0f, 0.0f, 120.0f);
-                _props[0].AddBlip();
-                _props[0].AttachedBlip.Sprite = BlipSprite.AmmuNation;
-                _props[0].AttachedBlip.Name = "Weapon Workshop";
-                _props[0].AttachedBlip.IsShortRange = true;
-
-                _initialized = true;
+                SpawnChest();
+                _isInitialized = true;
             }
 
-            if (!_cTimerSet)
+            // this little trick fixes the chest not spawning when the script loads for the first time
+            if (_isFirstTime && _isInitialized && _props.Count > 0 && World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 40.0f)
             {
-                _cTimer.Start();
-                _cTimerSet = true;
+                RemoveChest();
+                SpawnChest();
+                _isFirstTime = false;
+            }
+
+            // handle interval timer
+            if (!_isResupplyTimerSet)
+            {
+                _resupplyTimer.Start();
+                _isResupplyTimerSet = true;
             }
             else
             {
-                if (_cTimer.Running) _cTimer.Update();
+                if (_resupplyTimer.Running) _resupplyTimer.Update();
             }
 
-            if (World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 3)
+            // handle menu based on player distance from the chest
+            if (World.GetDistance(Game.Player.Character.Position, _props[0].Position) < 3.0f)
             {
-                _menu.Visible = true;
+                DisplayHelpTextThisFrame("Press ~INPUT_CONTEXT~ to open the chest");
+                if (Game.IsControlJustPressed(Control.Context))
+                {
+                    _menu.Visible = true;
+                }
             }
             else
             {

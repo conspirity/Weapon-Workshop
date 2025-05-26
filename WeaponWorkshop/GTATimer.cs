@@ -1,9 +1,10 @@
-﻿// Original author of this namespace: unknown user from GTA Forums
-// source: https://gtaforums.com/topic/924484-c-using-timers-and-intervals/
-// Modified by ConcatSpirity
+﻿/*
+ * Original author of this namespace: unknown user from GTA Forums
+ * source: https://gtaforums.com/topic/924484-c-using-timers-and-intervals/
+ * Modified by ConcatSpirity
+ */
 
 using GTA;
-using System;
 
 namespace GTATimers
 {
