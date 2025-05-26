@@ -8,3 +8,9 @@ The chest is also automatically resupplied at a default interval of 15 minutes (
 This is good for role-playing, realism, gangster life etc.
 
 ## Preview
+
+![preview01.png](./screenshots/preview01.png)
+
+![preview02.png](./screenshots/preview02.png)
+
+![preview03.png](./screenshots/preview03.png)
